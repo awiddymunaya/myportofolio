@@ -126,7 +126,9 @@ h1, .brand {
 }
 
 .social-link {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
