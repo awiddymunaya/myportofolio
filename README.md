@@ -14,10 +14,6 @@ Kelas : PBP D
 
 
 
-\### Tugas 1
-
-
-
 1\. Di tugas ini, aku lumayan banyak pakai elemen semantik HTML5 kayak `<section>`, `<main>`, `<header>`, dan `<footer>`. Ternyata elemen-elemen ini ngebantu banget buat menstrukturkan \*codingan\*. Dibanding cuma pakai `<div>` di mana-mana yang bikin pusing pas lagi \*nge-debug\*, pakai elemen semantik bikin kode HTML jauh lebih rapi dan jelas pembagiannya (mana blok untuk profil, mana yang khusus untuk \*experience\*). Selain lebih gampang dibaca oleh manusia, dari yang aku pelajari ini juga praktik yang bagus buat SEO dan \*accessibility\* \*website\*-nya.
 
 
@@ -72,3 +68,16 @@ dalam mengerjakan tugas portofolio ini, saya berkolaborasi dengan AI Gemini seba
 
 &#x20;  - Prompt 3: "Bagaimana cara meratakan tinggi card Experience di CSS Grid meskipun salah satu card belum memiliki foto?"
 
+
+\### Tugas 2
+
+1\. Ketika pengguna membuka halaman baru, urls.py proyek menerima request dan mengarahkannya ke urls.py aplikasi, yang kemudian memanggil fungsi view untuk mengambil data dari model di database sebelum akhirnya merender dan mengembalikan halaman tersebut ke browser menggunakan template.
+
+2\. Data portofolio sebaiknya disimpan pada model alih-alih ditulis langsung di dalam template agar logika data terpisah dari tampilan HTML, sehingga proses pemeliharaan, penambahan, maupun pembaruan data dapat dilakukan dengan mudah melalui database atau admin panel tanpa harus merusak struktur kode template.
+
+3\. Perintah makemigrations berfungsi untuk mendeteksi perubahan pada models.py dan menghasilkan berkas cetak biru migrasi, sedangkan migrate berfungsi mengeksekusi berkas tersebut untuk menerapkan perubahan skema secara nyata ke database—seperti saat Anda membuat model Education baru untuk menyimpan data riwayat sekolah.
+
+### AI Disclosure
+* **Tools yang Digunakan:** Gemini (Google)
+* **Bagian yang Dibantu:** Membantu perancangan model `Education`, *debugging* unit test, penataan *styling* CSS halaman *education*, serta penyusunan jawaban pertanyaan reflektif Tugas 2.
+* **Strategi Prompting:** Menggunakan pendekatan iteratif dengan memberikan kode yang sedang error atau bagian *markup* yang ingin diubah secara spesifik.
