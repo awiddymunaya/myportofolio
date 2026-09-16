@@ -151,3 +151,5 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+
+CSRF_TRUSTED_ORIGINS = ["https://awiddymunaya.pbp.cs.ui.ac.id"]

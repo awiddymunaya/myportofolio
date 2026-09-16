@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block meta %}
+    <title>Add Experience - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+    <section class="experience-section">
+        <!-- Kita batasi lebarnya (max-width: 600px) agar form tidak terlalu melebar ke samping -->
+        <div class="container" style="max-width: 600px; margin: 0 auto;">
+            <h1 style="margin-bottom: 2rem; text-align: center;">Add New Experience</h1>
+            
+            <form method="post" action="{% url 'main:create_experience' %}" class="project-form">
+                {% csrf_token %} 
+                
+                <!-- Ini adalah cara yang benar untuk merender form agar CSS-nya terbaca -->
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% for error in field.errors %}
+                            <p class="form-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
+                    <button type="submit" class="button button-primary">Simpan Pengalaman</button>
+                    <a href="{% url 'main:show_experience' %}" class="button button-secondary">Batal</a>
+                </div>
+            </form>
+            
+        </div>
+    </section>
+{% endblock content %}

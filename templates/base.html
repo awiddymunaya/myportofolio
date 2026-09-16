@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Sesuai Langkah 3: Menambahkan block meta -->
+    {% block meta %} {% endblock meta %}
+    
+    <title>Awiddy Munaya</title>
+    
+    <!-- Link font dan CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <!-- Animasi Mahkota Background -->
+    <div class="floating-crown crown1">👑</div>
+    <div class="floating-crown crown2">👑</div>
+    <div class="floating-crown crown3">👑</div>
+    <div class="floating-crown crown4">👑</div>
+    <div class="floating-crown crown5">👑</div>
+
+    <!-- Sesuai Langkah 4: Memasukkan header & navbar -->
+    <header class="site-header">
+      <div class="container">
+          <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
+          <nav>
+              <a href="{% url 'main:show_main' %}">Profile</a>
+              <a href="{% url 'main:show_experience' %}">Experience</a>
+              <a href="{% url 'main:show_education' %}">Education</a> 
+          </nav>
+      </div>
+    </header>
+
+    <!-- Sesuai Langkah 4: Menambahkan block content -->
+    <main>
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Sesuai Langkah 4: Memasukkan footer -->
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+        </div>
+    </footer>
+</body>
+</html>

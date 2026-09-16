@@ -1,62 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ name }} - Pendidikan</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
-            <nav>
-                <a href="{% url 'main:show_main' %}">Profile</a>
-                <a href="{% url 'main:show_experience' %}">Experience</a>
-                <a href="{% url 'main:show_education' %}">Pendidikan</a>
-            </nav>
-        </div>
-    </header>
+{% extends 'base.html' %}
+{% load static %}
 
-    <main class="main-content">
-        <section class="section-container">
-            <div class="section-header">
-                <h1>Riwayat Pendidikan</h1>
-                <p class="subtitle">Perjalanan akademis dan jenjang sekolah yang telah ditempuh</p>
-            </div>
-            <div class="education-container">
-                {% for edu in educations %}
-                    <div class="education-card">
-                        <div class="education-badge">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            <span>{{ edu.level }}</span>
-                        </div>
-                        <div class="education-info">
-                            <h3>{{ edu.institution_name }}</h3>
-                            <p class="education-year">
-                                <i class="fa-regular fa-calendar"></i> 
-                                {{ edu.start_year }} — {{ edu.end_year }}
-                            </p>
-                        </div>
-                    </div>
-                {% empty %}
-                    <div class="empty-state">
-                        <i class="fa-solid fa-folder-open"></i>
-                        <p>Belum ada data pendidikan yang ditambahkan.</p>
-                    </div>
-                {% endfor %}
-            </div>
-        </section>
-    </main>
+{% block meta %}
+    <title>Education - {{ name }}</title>
+{% endblock meta %}
 
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+{% block content %}
+    <section class="main-content">
+        <div class="section-header">
+            <h1 style="margin-top: 2rem;">Education</h1>
+            <p class="subtitle">Latar belakang akademis saya</p>
         </div>
-    </footer>
-</body>
-</html>
+
+        <div class="education-container">
+            {% for edu in educations %}
+                <div class="education-card">
+                    <div class="education-badge">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>{{ edu.start_year }} - {{ edu.end_year }}</span>
+                    </div>
+                    <div class="education-info">
+                        <h3>{{ edu.institution_name }}</h3>
+                        <p class="education-year">{{ edu.level }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="empty-state">
+                    <i class="fa-solid fa-folder-open"></i><br>
+                    Belum ada data pendidikan yang ditambahkan.
+                </p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock content %}
