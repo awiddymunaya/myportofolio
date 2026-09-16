@@ -1,61 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raja - Portfolio</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
-    <header class="site-header">
-        <div class="container">
-            <a href="#profile" class="brand">Raja</a>
-            <nav>
-                <a href="#profile">Profile</a>
-            </nav>
-        </div>
-    </header>
+{% extends 'base.html' %}
+{% load static %}
+{% load static %}
 
-    <main>
-        <section class="hero" id="profile">
-            <div class="container hero-grid">
-                <div class="hero-identity">
-                    <p class="hero-kicker">Ilmu Komputer &middot; Universitas Indonesia</p>
-                    <h1>Awiddy Munaya Rajanadoli</h1>
-                </div>
-                <div class="hero-photo">
-                    <div class="photo-block"></div>
-                    <img class="avatar" src="/static/img/Raja.jpg" alt="Photo of Raja">
-                </div>
-                <div class="hero-details">
-                    <p class="bio">Aku adalah seorang pemalas dan hobiku ialah tidur. Aku berasal dari Padang, umurku 18, dan aku suka kota Jakarta.</p>
-                    <dl class="meta-list">
-                        <div class="meta-row">
-                            <dt>NPM</dt>
-                            <dd>2506622872</dd>
-                        </div>
-                        <div class="meta-row">
-                            <dt>Program</dt>
-                            <dd>S1 Ilmu Komputer</dd>
-                        </div>
-                    </dl>
-                    <div class="social-links">
-                        <a href="https://github.com/awiddymunaya" class="social-link">GitHub</a>
-                        <a href="https://www.linkedin.com/in/awiddy-munaya-rajanadoli-258248373/" class="social-link">LinkedIn</a>
-                        <a href="mailto:awiddy.munaya@ui.ac.id" class="social-link">Email</a>
+{% block content %}
+    <section class="hero" id="profile">
+        <div class="container hero-grid">
+            <div class="hero-identity">
+                <p class="hero-kicker">Ilmu Komputer &middot; Universitas Indonesia</p>
+                <h1>{{ name }}</h1>
+            </div>
+            <div class="hero-photo">
+                <div class="photo-block"></div>
+                <img class="avatar" src="{% static 'img/Raja.jpg' %}" alt="Photo of {{ name }}">
+            </div>
+            <div class="hero-details">
+                <p class="bio">{{ bio }}</p>
+                <dl class="meta-list">
+                    <div class="meta-row">
+                        <dt>NPM</dt>
+                        <dd>{{ npm }}</dd>
                     </div>
+                    <div class="meta-row">
+                        <dt>Program</dt>
+                        <dd>{{ study_program }}</dd>
+                    </div>
+                </dl>
+                <div class="social-links">
+                    <a href="https://github.com/awiddymunaya" class="social-link"><i class="fa-brands fa-github"></i> GitHub</a>
+                    <a href="https://www.linkedin.com/in/awiddy-munaya-rajanadoli-258248373/" class="social-link"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                    <a href="mailto:awiddy.munaya@ui.ac.id" class="social-link"><i class="fa-solid fa-envelope"></i> Email</a>
                 </div>
             </div>
-        </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container">
-            <p>&copy; 2026 Raja. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
-    </footer>
-</body>
-</html>
+    </section>
+
+    <section id="experience" class="experience-section">
+        <h2>Experience</h2>
+        
+        <div class="experience-grid">
+            <!-- Item 1 -->
+            <div class="experience-card">
+                <h3>Staff Of Equipment and System</h3>
+                <p class="organization">COMPFEST</p>
+                <p class="duration">Apr 2026 - Present</p>
+            </div>
+    
+            <!-- Item 2 -->
+            <div class="experience-card">
+                <h3>Data Science Member</h3>
+                <p class="organization">Google Developer Groups (GDGoC UI)</p>
+                <p class="duration">Jan 2026 - Jun 2026</p>
+            </div>
+    
+            <!-- Item 3 -->
+            <div class="experience-card">
+                <h3>Project Control & SPI Member</h3>
+                <p class="organization">TemanKita</p>
+                <img src="/static/img/TemanKita.jpg" alt="Kegiatan TemanKita" class="experience-img">
+                <p class="duration">Jul 2025 - Jun 2026</p>
+            </div>
+    
+            <!-- Item 4 -->
+            <div class="experience-card">
+                <h3>Technical Operator</h3>
+                <p class="organization">BETIS Fasilkom UI</p>
+                <img src="/static/img/Betis.jpg" alt="Kegiatan BETIS" class="experience-img">
+                <p class="duration">Feb 2026 - May 2026</p>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

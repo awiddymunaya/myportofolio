@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+    <title>Education - {{ name }}</title>
+{% endblock meta %}
+
+{% block content %}
+    <section class="main-content">
+        <div class="section-header">
+            <h1 style="margin-top: 2rem;">Education</h1>
+            <p class="subtitle">Latar belakang akademis saya</p>
+        </div>
+
+        <div class="education-container">
+            {% for edu in educations %}
+                <div class="education-card">
+                    <div class="education-badge">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                        <span>{{ edu.start_year }} - {{ edu.end_year }}</span>
+                    </div>
+                    <div class="education-info">
+                        <h3>{{ edu.institution_name }}</h3>
+                        <p class="education-year">{{ edu.level }}</p>
+                    </div>
+                </div>
+            {% empty %}
+                <p class="empty-state">
+                    <i class="fa-solid fa-folder-open"></i><br>
+                    Belum ada data pendidikan yang ditambahkan.
+                </p>
+            {% endfor %}
+        </div>
+    </section>
+{% endblock content %}
