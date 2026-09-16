@@ -152,4 +152,4 @@ MAILERS = {
     },
 }
 
-CSRF_TRUSTED_ORIGINS = ["https://awiddymunaya.pbp.cs.ui.ac.id"]
+CSRF_TRUSTED_ORIGINS = ["https://awiddy-munaya-myportofolio.pws.cs.ui.ac.id"]
