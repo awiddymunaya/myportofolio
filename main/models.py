@@ -31,8 +31,9 @@ class Education(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     level = models.CharField(max_length=50)
     institution_name = models.CharField(max_length=255)
-    start_year = models.CharField(max_length=4)
-    end_year = models.CharField(max_length=10)
+    start_year = models.IntegerField() # Berubah jadi Integer agar tipe data bervariasi
+    end_year = models.CharField(max_length=20) # Tetap CharField agar bisa diisi tulisan "Sekarang"
+    description = models.TextField(blank=True, null=True) # Tambahan TextField
 
     def __str__(self):
         return f"{self.level} - {self.institution_name}"
