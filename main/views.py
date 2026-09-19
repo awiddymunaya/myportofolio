@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.core import serializers
 from django.http import HttpResponse
 from main.models import Experience, Education
-from main.forms import ExperienceForm 
+from main.forms import ExperienceForm, EducationForm
 
 def show_main(request):
     context = {
@@ -67,3 +67,61 @@ def delete_experience(request, experience_id):
         messages.success(request, "Pengalaman berhasil dihapus!")
         return redirect("main:show_experience")
     return redirect("main:show_experience")
+
+def get_educations_json(request):
+    educations = Education.objects.all()
+    educations_json = serializers.serialize("json", educations)
+    return HttpResponse(educations_json, content_type="application/json")
+
+# 2. Menampilkan data (dengan deserialisasi JSON)
+def show_education(request):
+    json_response = get_educations_json(request)
+    educations_deserialized = serializers.deserialize("json", json_response.content.decode("utf-8"))
+    educations = [edu.object for edu in educations_deserialized]
+
+    context = {
+        'educations': educations,
+        'name': "Awiddy Munaya Rajanadoli",
+    }
+    return render(request, 'education.html', context)
+
+# 3. Create (Menambah data)
+def create_education(request):
+    form = EducationForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Data pendidikan berhasil ditambahkan!")
+        return redirect("main:show_education")
+
+    context = {
+        "name": "Awiddy Munaya Rajanadoli",
+        "form": form,
+    }
+    return render(request, "create_education.html", context)
+
+# 4. Update (Mengubah data)
+def update_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+    # Memasukkan data lama ke dalam form (instance)
+    form = EducationForm(request.POST or None, instance=education)
+    
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Data pendidikan berhasil diperbarui!")
+        return redirect("main:show_education")
+
+    context = {
+        "name": "Awiddy Munaya Rajanadoli",
+        "form": form,
+        "education": education,
+    }
+    return render(request, "update_education.html", context)
+
+# 5. Delete (Menghapus data)
+def delete_education(request, education_id):
+    education = get_object_or_404(Education, pk=education_id)
+    if request.method == "POST":
+        education.delete()
+        messages.success(request, "Data pendidikan berhasil dihapus!")
+        return redirect("main:show_education")
+    return redirect("main:show_education")

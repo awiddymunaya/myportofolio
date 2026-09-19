@@ -1,0 +1,83 @@
+[
+{
+    "model": "main.experience",
+    "pk": "4ae97f41-cd9b-4d20-9243-d8b400848f99",
+    "fields": {
+        "title": "Staff of Equipment and System - COMPFEST",
+        "description": "Mengelola sistem operasional dan sarana teknis untuk memastikan seluruh rangkaian acara berjalan dengan aman, lancar, dan teratur.",
+        "category": "kepanitiaan",
+        "thumbnail": null,
+        "started_at": "2026-09-09T08:18:08.083Z",
+        "ended_at": null
+    }
+},
+{
+    "model": "main.experience",
+    "pk": "642e067a-a464-4273-b2c8-3a0465f92a9b",
+    "fields": {
+        "title": "Project Control & SPI Member - TemanKita",
+        "description": "Melakukan pengawasan dan pengendalian proyek operasional untuk memastikan kesesuaian jalannya kegiatan dengan standar organisasi.",
+        "category": "organisasi",
+        "thumbnail": null,
+        "started_at": "2026-09-09T08:18:10.002Z",
+        "ended_at": null
+    }
+},
+{
+    "model": "main.experience",
+    "pk": "c53cf8fe-1065-4b8d-8024-ecd273e70fc0",
+    "fields": {
+        "title": "Data Science Member - GDGoC UI",
+        "description": "Aktif mendalami konsep Data Science, pemrosesan data, serta analisis statistik dalam lingkup Google Developer Groups.",
+        "category": "organisasi",
+        "thumbnail": null,
+        "started_at": "2026-09-09T08:18:08.156Z",
+        "ended_at": null
+    }
+},
+{
+    "model": "main.experience",
+    "pk": "ca9c8457-7284-4b03-84c4-956660defd66",
+    "fields": {
+        "title": "Technical Operator - BETIS Fasilkom UI",
+        "description": "Bertanggung jawab atas kesiapan operasional teknis, kelengkapan sarana prasarana, serta memastikan keamanan dan kenyamanan lokasi kegiatan.",
+        "category": "kepanitiaan",
+        "thumbnail": null,
+        "started_at": "2026-09-09T08:18:08.205Z",
+        "ended_at": null
+    }
+},
+{
+    "model": "main.education",
+    "pk": "bec8aa58-de29-47cc-b317-ffcbbbb620f7",
+    "fields": {
+        "level": "SMP",
+        "institution_name": "SMP Insan Cendekia Boarding School Payakumbuh",
+        "start_year": 2019,
+        "end_year": "2022",
+        "description": null
+    }
+},
+{
+    "model": "main.education",
+    "pk": "d4d6142a-0ed1-49e0-aee7-4cbb940add5e",
+    "fields": {
+        "level": "SMA",
+        "institution_name": "SMAN 1 Sumatera Barat",
+        "start_year": 2022,
+        "end_year": "2025",
+        "description": null
+    }
+},
+{
+    "model": "main.education",
+    "pk": "efd4bc98-536b-499e-a5ac-38c230e18b41",
+    "fields": {
+        "level": "SD",
+        "institution_name": "SD Sabbihisma 1",
+        "start_year": 2013,
+        "end_year": "2019",
+        "description": null
+    }
+}
+]

@@ -10,18 +10,35 @@
         <div class="section-header">
             <h1 style="margin-top: 2rem;">Education</h1>
             <p class="subtitle">Latar belakang akademis saya</p>
+            <a href="{% url 'main:create_education' %}" class="btn-tambah" style="display: inline-block; padding: 10px 20px; background-color: #D4AF37; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 20px;">
+                + Tambah Pendidikan
+            </a>
         </div>
 
         <div class="education-container">
             {% for edu in educations %}
-                <div class="education-card">
+                <div class="education-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
                     <div class="education-badge">
                         <i class="fa-solid fa-graduation-cap"></i>
                         <span>{{ edu.start_year }} - {{ edu.end_year }}</span>
                     </div>
                     <div class="education-info">
                         <h3>{{ edu.institution_name }}</h3>
-                        <p class="education-year">{{ edu.level }}</p>
+                        <p class="education-year" style="font-weight: bold;">{{ edu.level }}</p>
+                        {% if edu.description %}
+                            <p style="margin-top: 10px;">{{ edu.description }}</p>
+                        {% endif %}
+                        
+                        <div class="action-buttons" style="margin-top: 15px;">
+                            <a href="{% url 'main:update_education' edu.id %}" style="padding: 5px 15px; background-color: #4169E1; color: white; text-decoration: none; border-radius: 3px; margin-right: 10px;">Edit</a>
+                            
+                            <form action="{% url 'main:delete_education' edu.id %}" method="POST" style="display: inline-block;">
+                                {% csrf_token %}
+                                <button type="submit" onclick="return confirm('Yakin ingin menghapus data ini?');" style="padding: 5px 15px; background-color: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                                    Hapus
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             {% empty %}
