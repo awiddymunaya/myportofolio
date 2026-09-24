@@ -81,3 +81,23 @@ dalam mengerjakan tugas portofolio ini, saya berkolaborasi dengan AI Gemini seba
 * **Tools yang Digunakan:** Gemini (Google)
 * **Bagian yang Dibantu:** Membantu perancangan model `Education`, *debugging* unit test, penataan *styling* CSS halaman *education*, serta penyusunan jawaban pertanyaan reflektif Tugas 2.
 * **Strategi Prompting:** Menggunakan pendekatan iteratif dengan memberikan kode yang sedang error atau bagian *markup* yang ingin diubah secara spesifik.
+
+
+### Tugas 3
+
+1. **Mengapa menggunakan `ModelForm` dan perlunya `{% csrf_token %}`?**
+   Kita menggunakan `ModelForm` karena Django dapat secara otomatis men-*generate* form HTML berdasarkan *field* yang sudah kita definisikan pada model database. Hal ini sangat efisien, mencegah duplikasi penulisan kode, dan otomatis menangani validasi data dari *input* pengguna. 
+   Sementara itu, `{% csrf_token %}` wajib ditambahkan pada setiap form yang menggunakan metode POST untuk melindungi situs dari serangan *Cross-Site Request Forgery* (CSRF). Token ini memverifikasi bahwa *request* modifikasi data yang masuk benar-benar berasal dari form di *website* kita sendiri, bukan dari skrip berbahaya di situs pihak ketiga.
+
+2. **Mengapa JSON lebih disukai dibandingkan XML?**
+   JSON (*JavaScript Object Notation*) lebih mendominasi pengembangan web modern karena strukturnya yang jauh lebih ringan dan ringkas. Berbeda dengan XML yang menggunakan sistem *tag* pembuka dan penutup yang panjang (*verbose*), JSON menggunakan format pasangan *key-value* yang mudah dibaca oleh manusia maupun mesin. Selain itu, JSON didukung secara *native* oleh JavaScript, sehingga proses *parsing* data di sisi *frontend* (seperti React, Vue, atau Vanilla JS) menjadi sangat cepat dan langsung bisa digunakan sebagai objek.
+
+3. **Alur fungsi *view* JSON dan pentingnya *serialization*:**
+   Alurnya dimulai saat *client* meminta data (melalui akses URL). *URL dispatcher* meneruskan *request* ke fungsi *view* terkait. Di dalam *view*, kita melakukan *query* ke database menggunakan ORM Django untuk mendapatkan data portofolio (yang saat ini masih berupa *QuerySet* atau objek Python). 
+   Kita perlu melakukan **serialization** karena protokol HTTP tidak bisa mengirimkan objek Python mentah secara langsung. *Serialization* bertugas menerjemahkan/mengubah objek Python kompleks tersebut menjadi format teks standar (JSON). Setelah menjadi *string* JSON, barulah data tersebut dibungkus dalam `HttpResponse` dengan `content_type="application/json"` dan dikembalikan ke *client*.
+
+   ### AI Disclosure
+Dalam pengerjaan tugas minggu ini, saya menggunakan bantuan AI (Large Language Model) sebagai *thought partner* dan asisten *debugging*.
+* **Prompting Strategy:** Saya memberikan konteks berupa potongan kode (models, forms, views) dan *error traceback* dari terminal untuk mencari akar masalah saat terjadi kegagalan migrasi di PWS.
+* **Keterbatasan AI:** AI terkadang tidak mengetahui status terkini dari *database* lokal saya atau salah memberikan asumsi terkait riwayat file migrasi yang bertabrakan.
+* **Perbaikan Manual:** Saya secara manual harus memverifikasi urutan *dependencies* pada file migrasi (`0005_...py`), menghapus file migrasi yang *corrupt*, menyesuaikan *styling* CSS menggunakan tema 'Royal Blue' dan 'Gold' yang spesifik untuk UI portofolio saya, dan menjalankan perintah `dumpdata` untuk mengatur fitur *Data Migration* agar sinkron dengan PWS.

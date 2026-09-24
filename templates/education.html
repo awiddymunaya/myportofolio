@@ -1,52 +1,62 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block meta %}
-    <title>Education - {{ name }}</title>
-{% endblock meta %}
-
 {% block content %}
-    <section class="main-content">
-        <div class="section-header">
-            <h1 style="margin-top: 2rem;">Education</h1>
-            <p class="subtitle">Latar belakang akademis saya</p>
-            <a href="{% url 'main:create_education' %}" class="btn-tambah" style="display: inline-block; padding: 10px 20px; background-color: #D4AF37; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; margin-bottom: 20px;">
-                + Tambah Pendidikan
-            </a>
+<section class="main-content" style="padding: 40px 20px;">
+    <div class="container" style="max-width: 800px; margin: 0 auto;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1>Riwayat Pendidikan</h1>
+            <!-- Tombol untuk menambah pendidikan baru -->
+            <a href="{% url 'main:create_education' %}" style="padding: 10px 20px; background-color: #D4AF37; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">+ Tambah Pendidikan</a>
         </div>
 
-        <div class="education-container">
+        <div class="education-list">
             {% for edu in educations %}
-                <div class="education-card" style="border: 1px solid #ccc; padding: 15px; margin-bottom: 15px; border-radius: 8px;">
-                    <div class="education-badge">
-                        <i class="fa-solid fa-graduation-cap"></i>
-                        <span>{{ edu.start_year }} - {{ edu.end_year }}</span>
-                    </div>
-                    <div class="education-info">
-                        <h3>{{ edu.institution_name }}</h3>
-                        <p class="education-year" style="font-weight: bold;">{{ edu.level }}</p>
-                        {% if edu.description %}
-                            <p style="margin-top: 10px;">{{ edu.description }}</p>
-                        {% endif %}
+                <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+                    <h2 style="margin: 0 0 10px 0; color: #333;">{{ edu.institution_name }}</h2>
+                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #666;">
+                        {{ edu.level }} | {{ edu.start_year }} - {{ edu.end_year }}
+                    </p>
+                    {% if edu.description %}
+                        <p style="margin: 0 0 15px 0;">{{ edu.description }}</p>
+                    {% endif %}
+                    
+                    <!-- Tombol Aksi -->
+                    <div style="display: flex; gap: 10px;">
+                        <a href="{% url 'main:update_education' edu.id %}" style="padding: 6px 15px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Edit</a>
                         
-                        <div class="action-buttons" style="margin-top: 15px;">
-                            <a href="{% url 'main:update_education' edu.id %}" style="padding: 5px 15px; background-color: #4169E1; color: white; text-decoration: none; border-radius: 3px; margin-right: 10px;">Edit</a>
-                            
-                            <form action="{% url 'main:delete_education' edu.id %}" method="POST" style="display: inline-block;">
-                                {% csrf_token %}
-                                <button type="submit" onclick="return confirm('Yakin ingin menghapus data ini?');" style="padding: 5px 15px; background-color: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;">
-                                    Hapus
-                                </button>
-                            </form>
-                        </div>
+                        <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" style="padding: 6px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
+                        </form>
                     </div>
                 </div>
             {% empty %}
-                <p class="empty-state">
-                    <i class="fa-solid fa-folder-open"></i><br>
-                    Belum ada data pendidikan yang ditambahkan.
-                </p>
+                <div style="text-align: center; padding: 40px; background: rgba(255, 255, 255, 0.5); border-radius: 8px;">
+                    <p>Belum ada riwayat pendidikan yang ditambahkan.</p>
+                </div>
             {% endfor %}
         </div>
-    </section>
+
+    </div>
+</section>
 {% endblock content %}
+<!-- Bagian Tombol Tambah (Di atas daftar) -->
+{% if user.is_authenticated %}
+    <a href="{% url 'main:create_education' %}" style="padding: 10px 20px; background-color: #D4AF37; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">+ Tambah Pendidikan</a>
+{% endif %}
+
+<!-- ... kode daftar pendidikan ... -->
+
+<!-- Bagian Tombol Edit dan Hapus (Di dalam perulangan card) -->
+{% if user.is_authenticated %}
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'main:update_education' edu.id %}" style="padding: 6px 15px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Edit</a>
+        
+        <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
+            {% csrf_token %}
+            <button type="submit" style="padding: 6px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
+        </form>
+    </div>
+{% endif %}

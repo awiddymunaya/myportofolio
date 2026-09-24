@@ -4,6 +4,10 @@ from django.core import serializers
 from django.http import HttpResponse
 from main.models import Experience, Education
 from main.forms import ExperienceForm, EducationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
+import datetime # Akan kita gunakan nanti untuk fitur Cookie Last Login
+from django.contrib.auth.decorators import login_required
 
 def show_main(request):
     context = {
@@ -14,6 +18,8 @@ def show_main(request):
             "Aku adalah seorang pemalas dan hobiku ialah tidur. "
             "Aku berasal dari Padang, umurku 18, dan aku suka kota Jakarta."
         ),
+
+        "last_login": request.COOKIES.get('last_login'),
     }
     return render(request, "index.html", context)
 
@@ -47,6 +53,7 @@ def show_education(request):
     }
     return render(request, 'education.html', context)
 
+@login_required(login_url='/login')
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -86,6 +93,7 @@ def show_education(request):
     return render(request, 'education.html', context)
 
 # 3. Create (Menambah data)
+@login_required(login_url='/login')
 def create_education(request):
     form = EducationForm(request.POST or None)
     if request.method == "POST" and form.is_valid():
@@ -118,6 +126,7 @@ def update_education(request, education_id):
     return render(request, "update_education.html", context)
 
 # 5. Delete (Menghapus data)
+@login_required(login_url='/login')
 def delete_education(request, education_id):
     education = get_object_or_404(Education, pk=education_id)
     if request.method == "POST":
@@ -125,3 +134,40 @@ def delete_education(request, education_id):
         messages.success(request, "Data pendidikan berhasil dihapus!")
         return redirect("main:show_education")
     return redirect("main:show_education")
+
+def register(request):
+    form = UserCreationForm()
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Akun berhasil dibuat! Silakan login.')
+            return redirect('main:login')
+    
+    context = {'form': form}
+    return render(request, 'register.html', context)
+
+def login_user(request):
+    if request.method == 'POST':
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            
+            response = redirect('main:show_main')
+            # Format waktu menjadi Tahun-Bulan-Tanggal Jam:Menit:Detik
+            waktu_sekarang = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            response.set_cookie('last_login', waktu_sekarang)
+            
+            return response
+        else:
+            messages.error(request, "Username atau password salah.")
+    else:
+        form = AuthenticationForm(request)
+        
+    context = {'form': form}
+    return render(request, 'login.html', context)
+
+def logout_user(request):
+    logout(request)
+    return redirect('main:login')

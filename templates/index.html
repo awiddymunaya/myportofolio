@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load static %}
 
 {% block content %}
     <section class="hero" id="profile">
@@ -30,6 +29,16 @@
                     <a href="https://www.linkedin.com/in/awiddy-munaya-rajanadoli-258248373/" class="social-link"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
                     <a href="mailto:awiddy.munaya@ui.ac.id" class="social-link"><i class="fa-solid fa-envelope"></i> Email</a>
                 </div>
+                
+                <!-- TAMBAHAN BARU: Memunculkan Cookie Last Login di sini -->
+                {% if user.is_authenticated %}
+                    <div style="margin-top: 20px; padding: 10px 15px; background-color: rgba(212, 175, 55, 0.1); border-left: 4px solid #D4AF37; border-radius: 4px; display: inline-block;">
+                        <p style="margin: 0; font-size: 14px; color: #333;">
+                            <i class="fa-solid fa-clock"></i> Sesi terakhir login: <strong>{{ last_login }}</strong>
+                        </p>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
     </section>
