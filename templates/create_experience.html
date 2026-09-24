@@ -10,6 +10,15 @@
         <div class="container" style="max-width: 600px; margin: 0 auto;">
             <h1 style="margin-bottom: 2rem; text-align: center;">Add New Experience</h1>
             
+            <!-- TAMBAHAN BARU: Menampilkan Pesan Error jika Kode Salah -->
+            {% if messages %}
+                <div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 6px; margin-bottom: 25px; text-align: center; border-left: 5px solid #c62828;">
+                    {% for message in messages %}
+                        <strong><i class="fa-solid fa-triangle-exclamation"></i> {{ message }}</strong>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <form method="post" action="{% url 'main:create_experience' %}" class="project-form">
                 {% csrf_token %} 
                 
@@ -23,6 +32,12 @@
                         {% endfor %}
                     </div>
                 {% endfor %}
+                
+                <!-- TAMBAHAN BARU: Kolom Input Access Code -->
+                <div class="form-group" style="margin-top: 15px;">
+                    <label for="id_access_code" style="display: block; margin-bottom: 5px; font-weight: bold;">Access Code</label>
+                    <input type="password" name="access_code" id="id_access_code" required placeholder="Masukkan kode rahasia..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                </div>
                 
                 <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: center;">
                     <button type="submit" class="button button-primary">Simpan Pengalaman</button>

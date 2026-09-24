@@ -6,11 +6,13 @@ from main.views import (
     create_experience, 
     get_experiences_json, 
     delete_experience,
-    # Import fungsi-fungsi education yang baru:
     create_education,
     update_education,
     delete_education,
-    get_educations_json
+    get_educations_json,
+    register,       # Tambahan baru
+    login_user,     # Tambahan baru
+    logout_user     # Tambahan baru
 )
 
 app_name = "main"
@@ -30,4 +32,9 @@ urlpatterns = [
     path("education/<uuid:education_id>/update/", update_education, name="update_education"),
     path("education/<uuid:education_id>/delete/", delete_education, name="delete_education"),
     path("api/education/", get_educations_json, name="get_educations_json"),
+    
+    # --- URL Autentikasi ---
+    path('register/', register, name='register'),
+    path('login/', login_user, name='login'),
+    path('logout/', logout_user, name='logout'),
 ]

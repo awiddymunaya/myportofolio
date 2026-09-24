@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block meta %}
+    <title>Login - {{ name }}</title>
+    <style>
+        /* Gaya Khusus Tema Royal Blue & Emas */
+        .auth-wrapper {
+            padding: 60px 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .auth-card {
+            width: 100%;
+            max-width: 420px; /* Dibuat sedikit lebih ramping dari form register */
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(15, 43, 91, 0.15), 0 1px 3px rgba(0,0,0,0.05);
+            /* Aksen garis atas menggunakan Royal Blue */
+            border-top: 5px solid #0f2b5b; 
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .auth-header h1 {
+            color: #0f2b5b; /* Teks Royal Blue */
+            margin-bottom: 5px;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .auth-header p {
+            color: #666;
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #0f2b5b;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        .form-group input:focus {
+            /* Cahaya emas saat kolom sedang diketik */
+            border-color: #D4AF37; 
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); 
+        }
+
+        /* Tombol Royal Blue dengan Teks Emas */
+        .btn-royal {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #0f2b5b, #1a365d);
+            color: #D4AF37; 
+            border: 1px solid #D4AF37;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .btn-royal:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(15, 43, 91, 0.4);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #666;
+        }
+        .auth-footer a {
+            color: #D4AF37; 
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .auth-footer a:hover {
+            text-decoration: underline;
+            color: #0f2b5b;
+        }
+        
+        /* Notifikasi Error (misal: password salah) */
+        .messages {
+            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 6px;
+            background-color: #ffebee;
+            color: #c62828;
+            font-size: 14px;
+            text-align: center;
+            border-left: 4px solid #c62828;
+        }
+    </style>
+{% endblock meta %}
+
+{% block content %}
+    <section class="auth-wrapper">
+        <div class="auth-card">
+            
+            <div class="auth-header">
+                <h1>Login Pengguna</h1>
+                <p>Selamat datang kembali di kerajaanmu.</p>
+            </div>
+
+            <!-- Penampil pesan error jika gagal login -->
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <strong>{{ message }}</strong>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <form method="POST">
+                {% csrf_token %}
+                
+                <!-- Membongkar form untuk kolom Username & Password -->
+                {% for field in form %}
+                    <div class="form-group">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                    </div>
+                {% endfor %}
+                
+                <button type="submit" class="btn-royal">Masuk</button>
+            </form>
+            
+            <div class="auth-footer">
+                Belum punya akun? <a href="{% url 'main:register' %}">Daftar di sini</a>
+            </div>
+            
+        </div>
+    </section>
+{% endblock content %}
