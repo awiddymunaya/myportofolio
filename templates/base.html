@@ -14,7 +14,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-<body>
+<body style="background-color: #fafbfc; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+    
     <!-- Animasi Mahkota Background -->
     <div class="floating-crown crown1">👑</div>
     <div class="floating-crown crown2">👑</div>
@@ -22,37 +23,46 @@
     <div class="floating-crown crown4">👑</div>
     <div class="floating-crown crown5">👑</div>
 
-    <!-- Sesuai Langkah 4: Memasukkan header & navbar -->
-    <header class="site-header">
-      <div class="container">
-          <a href="{% url 'main:show_main' %}" class="brand">{{ name }}</a>
-          <nav>
-    <a href="{% url 'main:show_main' %}">Profile</a>
-    <a href="{% url 'main:show_experience' %}">Experience</a>
-    <a href="{% url 'main:show_education' %}">Education</a> 
-    
-    <!-- Tambahan logika sistem login -->
-    {% if user.is_authenticated %}
-        <span style="color: #D4AF37; margin-left: 15px; font-weight: bold;">Halo, {{ user.username }}</span>
-        <a href="{% url 'main:logout' %}" style="color: #f44336; border: 1px solid #f44336; padding: 5px 10px; border-radius: 5px;">Logout</a>
-    {% else %}
-        <a href="{% url 'main:login' %}" style="color: #2196F3; margin-left: 15px;">Login</a>
-        <a href="{% url 'main:register' %}" style="color: #4CAF50; border: 1px solid #4CAF50; padding: 5px 10px; border-radius: 5px;">Register</a>
-    {% endif %}
-</nav>
+    <!-- HEADER BARU: Desain Elegan Royal Blue & Gold -->
+    <header class="site-header" style="background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 15px rgba(15, 43, 91, 0.08); padding: 15px 0;">
+      <div class="container" style="display: flex; justify-content: space-between; align-items: center; max-width: 1100px; margin: 0 auto; padding: 0 20px;">
+          
+          <!-- Logo / Nama Brand -->
+          <a href="{% url 'main:show_main' %}" class="brand" style="font-size: 22px; font-weight: 900; color: #0f2b5b; text-decoration: none; letter-spacing: 0.5px;">{{ name }}</a>
+          
+          <!-- Navigasi Utama -->
+          <nav style="display: flex; align-items: center; gap: 25px;">
+              <a href="{% url 'main:show_main' %}" style="color: #0f2b5b; font-weight: 700; text-decoration: none; font-size: 15px; transition: color 0.2s;">Profile</a>
+              <a href="{% url 'main:show_experience' %}" style="color: #0f2b5b; font-weight: 700; text-decoration: none; font-size: 15px; transition: color 0.2s;">Experience</a>
+              <a href="{% url 'main:show_education' %}" style="color: #0f2b5b; font-weight: 700; text-decoration: none; font-size: 15px; transition: color 0.2s;">Education</a>
+
+              <!-- Garis Pemisah Vertikal -->
+              <div style="width: 1px; height: 20px; background-color: #ddd; margin: 0 5px;"></div>
+
+              {% if user.is_authenticated %}
+                  <span style="color: #D4AF37; font-weight: bold; font-size: 15px;">Halo, {{ user.username }}</span>
+                  <!-- Tombol Logout Merah Elegan -->
+                  <a href="{% url 'main:logout' %}" style="color: #c62828; border: 1px solid #c62828; padding: 6px 16px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold; transition: all 0.2s;">Logout</a>
+              {% else %}
+                  <!-- Tombol Login -->
+                  <a href="{% url 'main:login' %}" style="color: #0f2b5b; font-weight: bold; text-decoration: none; font-size: 15px;">Login</a>
+                  <!-- Tombol Register (Gradasi Emas) -->
+                  <a href="{% url 'main:register' %}" style="background: linear-gradient(135deg, #D4AF37, #B5952F); color: white; padding: 8px 22px; border-radius: 20px; text-decoration: none; font-weight: bold; font-size: 14px; box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3); transition: transform 0.2s;">Register</a>
+              {% endif %}
+          </nav>
       </div>
     </header>
 
     <!-- Sesuai Langkah 4: Menambahkan block content -->
-    <main>
+    <main style="min-height: 80vh;">
         {% block content %}
         {% endblock content %}
     </main>
 
-    <!-- Sesuai Langkah 4: Memasukkan footer -->
-    <footer class="site-footer">
+    <!-- FOOTER BARU: Diselaraskan dengan Royal Blue & Gold -->
+    <footer class="site-footer" style="background-color: #0f2b5b; color: rgba(255, 255, 255, 0.8); text-align: center; padding: 25px 0; border-top: 4px solid #D4AF37; margin-top: auto;">
         <div class="container">
-            <p>&copy; 2026 {{ name }}. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
+            <p style="margin: 0; font-size: 14px;">&copy; 2026 <strong>{{ name }}</strong>. Fakultas Ilmu Komputer, Universitas Indonesia.</p>
         </div>
     </footer>
 </body>

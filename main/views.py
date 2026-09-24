@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 import datetime # Akan kita gunakan nanti untuk fitur Cookie Last Login
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 def show_main(request):
     context = {
@@ -56,15 +57,18 @@ def show_education(request):
 @login_required(login_url='/login')
 def create_experience(request):
     form = ExperienceForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Pengalaman baru berhasil ditambahkan!")
-        return redirect("main:show_experience")
-
-    context = {
-        "name": "Awiddy Munaya Rajanadoli",
-        "form": form,
-    }
+    
+    if request.method == "POST":
+        kode_yang_diketik = request.POST.get("access_code")
+        
+        if kode_yang_diketik == "AWIDDY2026":
+            if form.is_valid():
+                form.save()
+                return redirect('main:show_experience')
+        else:
+            messages.error(request, "Access Code salah! Kamu tidak punya izin menambah data.")
+            
+    context = {'form': form}
     return render(request, "create_experience.html", context)
 
 def delete_experience(request, experience_id):
@@ -96,15 +100,21 @@ def show_education(request):
 @login_required(login_url='/login')
 def create_education(request):
     form = EducationForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Data pendidikan berhasil ditambahkan!")
-        return redirect("main:show_education")
-
-    context = {
-        "name": "Awiddy Munaya Rajanadoli",
-        "form": form,
-    }
+    
+    if request.method == "POST":
+        # Mengambil nilai ketikan dari kolom access_code di HTML
+        kode_yang_diketik = request.POST.get("access_code")
+        
+        # Cek apakah kodenya benar (Bebas ganti "AWIDDY2026" dengan kodemu sendiri)
+        if kode_yang_diketik == "AWIDDY2026":
+            if form.is_valid():
+                form.save()
+                return redirect('main:show_education')
+        else:
+            # Jika salah, munculkan pesan error dan gagalkan penyimpanan
+            messages.error(request, "Access Code salah! Kamu tidak punya izin menambah data.")
+            
+    context = {'form': form}
     return render(request, "create_education.html", context)
 
 # 4. Update (Mengubah data)

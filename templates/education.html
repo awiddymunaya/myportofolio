@@ -1,62 +1,214 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block content %}
-<section class="main-content" style="padding: 40px 20px;">
-    <div class="container" style="max-width: 800px; margin: 0 auto;">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <h1>Riwayat Pendidikan</h1>
-            <!-- Tombol untuk menambah pendidikan baru -->
-            <a href="{% url 'main:create_education' %}" style="padding: 10px 20px; background-color: #D4AF37; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">+ Tambah Pendidikan</a>
-        </div>
+{% block meta %}
+<style>
+    /* Desain Elegan untuk Riwayat Pendidikan */
+    .edu-section {
+        padding: 60px 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .edu-header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #D4AF37; /* Garis emas di bawah judul */
+    }
+    
+    .edu-header-container h1 {
+        color: #0f2b5b; /* Royal Blue */
+        margin: 0;
+        font-size: 32px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-        <div class="education-list">
-            {% for edu in educations %}
-                <div style="background: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
-                    <h2 style="margin: 0 0 10px 0; color: #333;">{{ edu.institution_name }}</h2>
-                    <p style="margin: 0 0 10px 0; font-weight: bold; color: #666;">
-                        {{ edu.level }} | {{ edu.start_year }} - {{ edu.end_year }}
-                    </p>
-                    {% if edu.description %}
-                        <p style="margin: 0 0 15px 0;">{{ edu.description }}</p>
-                    {% endif %}
-                    
-                    <!-- Tombol Aksi -->
-                    <div style="display: flex; gap: 10px;">
-                        <a href="{% url 'main:update_education' edu.id %}" style="padding: 6px 15px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Edit</a>
+    /* Tombol Tambah Elegan */
+    .btn-add-gold {
+        padding: 10px 20px;
+        background: linear-gradient(135deg, #D4AF37, #B5952F);
+        color: white;
+        text-decoration: none;
+        border-radius: 30px; /* Bentuk pil */
+        font-weight: bold;
+        font-size: 14px;
+        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-add-gold:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 15px rgba(212, 175, 55, 0.5);
+    }
+
+    /* Gaya Timeline */
+    .timeline {
+        position: relative;
+        padding-left: 30px; /* Ruang untuk garis */
+    }
+    
+    /* Garis vertikal timeline */
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        background: #0f2b5b; /* Garis Royal Blue */
+        border-radius: 2px;
+    }
+
+    /* Kartu Pendidikan */
+    .edu-card {
+        position: relative;
+        background: rgba(255, 255, 255, 0.95);
+        padding: 25px 30px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        /* Bayangan Royal Blue lembut */
+        box-shadow: 0 8px 25px rgba(15, 43, 91, 0.08);
+        border-left: 4px solid #D4AF37; /* Aksen Emas di kiri kartu */
+        transition: transform 0.3s ease;
+    }
+    .edu-card:hover {
+        transform: translateX(5px);
+    }
+
+    /* Titik Emas di garis timeline */
+    .edu-card::before {
+        content: '';
+        position: absolute;
+        left: -40px; /* Posisikan tepat di atas garis biru */
+        top: 30px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #D4AF37;
+        border: 4px solid white;
+        box-shadow: 0 0 0 2px #0f2b5b; /* Cincin luar biru */
+        z-index: 1;
+    }
+
+    /* Teks di dalam kartu */
+    .edu-institution {
+        color: #0f2b5b;
+        margin: 0 0 8px 0;
+        font-size: 22px;
+        font-weight: bold;
+    }
+    .edu-meta {
+        display: inline-block;
+        background-color: rgba(212, 175, 55, 0.15);
+        color: #B5952F; /* Emas gelap */
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: bold;
+        margin-bottom: 15px;
+    }
+    .edu-desc {
+        color: #555;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    /* Container Tombol Aksi */
+    .edu-actions {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    
+    /* Tombol Edit dan Hapus yang Seragam dan Rapi */
+    .btn-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 34px;
+        padding: 0 16px;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: bold;
+        text-decoration: none;
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+    .btn-action:hover {
+        opacity: 0.8;
+    }
+    .btn-edit {
+        background-color: #0f2b5b; /* Edit menggunakan Royal Blue */
+        color: #D4AF37; /* Teks Emas */
+        border: 1px solid #D4AF37;
+    }
+    .btn-delete {
+        background-color: transparent;
+        color: #c62828;
+        border: 1px solid #c62828;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 50px;
+        background: rgba(255, 255, 255, 0.8);
+        border: 2px dashed #0f2b5b;
+        border-radius: 12px;
+        color: #0f2b5b;
+        font-weight: bold;
+    }
+</style>
+{% endblock meta %}
+
+{% block content %}
+<section class="edu-section">
+    
+    <div class="edu-header-container">
+        <h1>Riwayat Pendidikan</h1>
+        
+        {% if user.is_authenticated %}
+            <a href="{% url 'main:create_education' %}" class="btn-add-gold">+ Tambah Pendidikan</a>
+        {% endif %}
+    </div>
+
+    <div class="timeline">
+        {% for edu in educations %}
+            <div class="edu-card">
+                <h2 class="edu-institution">{{ edu.institution_name }}</h2>
+                
+                <div class="edu-meta">
+                    {{ edu.level }} &nbsp;&bull;&nbsp; {{ edu.start_year }} - {{ edu.end_year }}
+                </div>
+                
+                {% if edu.description %}
+                    <p class="edu-desc">{{ edu.description }}</p>
+                {% endif %}
+                
+                {% if user.is_authenticated %}
+                    <div class="edu-actions">
+                        <a href="{% url 'main:update_education' edu.id %}" class="btn-action btn-edit">Edit Data</a>
                         
-                        <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
+                        <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0; display: inline-flex;">
                             {% csrf_token %}
-                            <button type="submit" style="padding: 6px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
+                            <button type="submit" class="btn-action btn-delete" onclick="return confirm('Yakin ingin menghapus riwayat pendidikan ini?')">Hapus</button>
                         </form>
                     </div>
-                </div>
-            {% empty %}
-                <div style="text-align: center; padding: 40px; background: rgba(255, 255, 255, 0.5); border-radius: 8px;">
-                    <p>Belum ada riwayat pendidikan yang ditambahkan.</p>
-                </div>
-            {% endfor %}
-        </div>
-
+                {% endif %}
+            </div>
+            
+        {% empty %}
+            <div class="empty-state">
+                <p>Belum ada riwayat pendidikan yang tercatat dalam arsip kerajaan.</p>
+            </div>
+        {% endfor %}
     </div>
+
 </section>
 {% endblock content %}
-<!-- Bagian Tombol Tambah (Di atas daftar) -->
-{% if user.is_authenticated %}
-    <a href="{% url 'main:create_education' %}" style="padding: 10px 20px; background-color: #D4AF37; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">+ Tambah Pendidikan</a>
-{% endif %}
-
-<!-- ... kode daftar pendidikan ... -->
-
-<!-- Bagian Tombol Edit dan Hapus (Di dalam perulangan card) -->
-{% if user.is_authenticated %}
-    <div style="display: flex; gap: 10px;">
-        <a href="{% url 'main:update_education' edu.id %}" style="padding: 6px 15px; background-color: #2196F3; color: white; text-decoration: none; border-radius: 4px; font-size: 14px;">Edit</a>
-        
-        <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
-            {% csrf_token %}
-            <button type="submit" style="padding: 6px 15px; background-color: #f44336; color: white; border: none; border-radius: 4px; font-size: 14px; cursor: pointer;" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
-        </form>
-    </div>
-{% endif %}

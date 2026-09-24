@@ -2,80 +2,198 @@
 {% load static %}
 
 {% block content %}
-    <section class="hero" id="profile">
-        <div class="container hero-grid">
-            <div class="hero-identity">
-                <p class="hero-kicker">Ilmu Komputer &middot; Universitas Indonesia</p>
-                <h1>{{ name }}</h1>
-            </div>
-            <div class="hero-photo">
-                <div class="photo-block"></div>
-                <img class="avatar" src="{% static 'img/Raja.jpg' %}" alt="Photo of {{ name }}">
-            </div>
-            <div class="hero-details">
-                <p class="bio">{{ bio }}</p>
-                <dl class="meta-list">
-                    <div class="meta-row">
-                        <dt>NPM</dt>
-                        <dd>{{ npm }}</dd>
-                    </div>
-                    <div class="meta-row">
-                        <dt>Program</dt>
-                        <dd>{{ study_program }}</dd>
-                    </div>
-                </dl>
-                <div class="social-links">
-                    <a href="https://github.com/awiddymunaya" class="social-link"><i class="fa-brands fa-github"></i> GitHub</a>
-                    <a href="https://www.linkedin.com/in/awiddy-munaya-rajanadoli-258248373/" class="social-link"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
-                    <a href="mailto:awiddy.munaya@ui.ac.id" class="social-link"><i class="fa-solid fa-envelope"></i> Email</a>
+<style>
+    /* Desain Eksklusif Halaman Utama */
+    .hero-section {
+        padding: 80px 40px;
+        display: flex;
+        justify-content: center;
+        /* Ubah menjadi transparan agar animasi mahkota dari base.html terlihat */
+        background-color: transparent; 
+    }
+    .hero-container {
+        max-width: 1100px;
+        width: 100%;
+        display: flex;
+        gap: 60px;
+        align-items: center;
+    }
+    
+    /* Bagian Teks */
+    .hero-text { flex: 1; }
+    
+    .hero-kicker {
+        color: #D4AF37; /* Emas */
+        font-weight: 800;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+    .hero-title {
+        color: #0f2b5b; /* Royal Blue */
+        font-size: 54px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 20px;
+    }
+    .hero-desc {
+        color: #555;
+        font-size: 17px;
+        line-height: 1.7;
+        margin-bottom: 35px;
+        max-width: 95%;
+    }
+    
+    /* Detail Data */
+    .meta-info {
+        display: flex;
+        gap: 50px;
+        margin-bottom: 35px;
+        border-left: 3px solid #D4AF37;
+        padding-left: 20px;
+    }
+    .meta-item dt {
+        color: #0f2b5b;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
+    .meta-item dd {
+        color: #333;
+        font-size: 16px;
+        font-weight: 700;
+        margin: 0;
+    }
+    
+    /* Tombol Sosial Media */
+    .social-links {
+        display: flex;
+        gap: 15px;
+    }
+    .social-btn {
+        background-color: #0f2b5b;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: bold;
+        font-size: 14px;
+        transition: transform 0.2s, background-color 0.2s;
+    }
+    .social-btn:hover {
+        background-color: #D4AF37; 
+        transform: translateY(-2px);
+    }
+    
+    /* Bagian Visual (Foto) */
+    .hero-visual {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+    }
+    .photo-frame {
+        position: relative;
+        width: 320px;
+        height: 380px;
+    }
+    .photo-bg {
+        position: absolute;
+        top: 20px;
+        right: -20px;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #D4AF37, #B5952F);
+        border-radius: 12px;
+        z-index: 1;
+    }
+    .photo-img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 12px;
+        z-index: 2;
+        box-shadow: 0 15px 35px rgba(15, 43, 91, 0.2);
+    }
+</style>
+
+<section class="hero-section">
+    <div class="hero-container">
+        <div class="hero-text">
+            <div class="hero-kicker">Ilmu Komputer &bull; Universitas Indonesia</div>
+            
+            <h1 class="hero-title">Awiddy Munaya<br>Rajanadoli</h1>
+            
+            <p class="hero-desc">{{ bio|default:"Aku adalah seorang pemalas dan hobiku ialah tidur. Aku berasal dari Padang, umurku 18, dan aku suka kota Jakarta." }}</p>
+            
+            <div class="meta-info">
+                <div class="meta-item">
+                    <dt>NPM</dt>
+                    <dd>{{ npm|default:"2506622872" }}</dd>
                 </div>
-                
-                <!-- TAMBAHAN BARU: Memunculkan Cookie Last Login di sini -->
-                {% if user.is_authenticated %}
-                    <div style="margin-top: 20px; padding: 10px 15px; background-color: rgba(212, 175, 55, 0.1); border-left: 4px solid #D4AF37; border-radius: 4px; display: inline-block;">
-                        <p style="margin: 0; font-size: 14px; color: #333;">
-                            <i class="fa-solid fa-clock"></i> Sesi terakhir login: <strong>{{ last_login }}</strong>
-                        </p>
-                    </div>
-                {% endif %}
-
+                <div class="meta-item">
+                    <dt>Program</dt>
+                    <dd>{{ study_program|default:"S1 Ilmu Komputer" }}</dd>
+                </div>
             </div>
-        </div>
-    </section>
+            
+            <div class="social-links">
+                <a href="https://github.com/awiddymunaya" class="social-btn"><i class="fa-brands fa-github"></i> GitHub</a>
+                <a href="https://www.linkedin.com/in/awiddy-munaya-rajanadoli-258248373/" class="social-btn"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                <a href="mailto:awiddy.munaya@ui.ac.id" class="social-btn"><i class="fa-solid fa-envelope"></i> Email</a>
+            </div>
 
-    <section id="experience" class="experience-section">
-        <h2>Experience</h2>
+            {% if user.is_authenticated %}
+            <div style="margin-top: 30px; display: inline-block; background-color: rgba(212, 175, 55, 0.1); border-left: 3px solid #D4AF37; padding: 10px 15px; border-radius: 0 4px 4px 0;">
+                <span style="font-size: 13px; color: #555;"><i class="fa-solid fa-clock" style="color: #D4AF37;"></i> Sesi terakhir login: <strong style="color: #0f2b5b;">{{ last_login }}</strong></span>
+            </div>
+            {% endif %}
+        </div>
         
-        <div class="experience-grid">
-            <!-- Item 1 -->
-            <div class="experience-card">
-                <h3>Staff Of Equipment and System</h3>
-                <p class="organization">COMPFEST</p>
-                <p class="duration">Apr 2026 - Present</p>
-            </div>
-    
-            <!-- Item 2 -->
-            <div class="experience-card">
-                <h3>Data Science Member</h3>
-                <p class="organization">Google Developer Groups (GDGoC UI)</p>
-                <p class="duration">Jan 2026 - Jun 2026</p>
-            </div>
-    
-            <!-- Item 3 -->
-            <div class="experience-card">
-                <h3>Project Control & SPI Member</h3>
-                <p class="organization">TemanKita</p>
-                <img src="/static/img/TemanKita.jpg" alt="Kegiatan TemanKita" class="experience-img">
-                <p class="duration">Jul 2025 - Jun 2026</p>
-            </div>
-    
-            <!-- Item 4 -->
-            <div class="experience-card">
-                <h3>Technical Operator</h3>
-                <p class="organization">BETIS Fasilkom UI</p>
-                <img src="/static/img/Betis.jpg" alt="Kegiatan BETIS" class="experience-img">
-                <p class="duration">Feb 2026 - May 2026</p>
+        <div class="hero-visual">
+            <div class="photo-frame">
+                <div class="photo-bg"></div>
+                <img src="{% static 'img/Raja.jpg' %}" alt="Photo of Awiddy Munaya" class="photo-img">
             </div>
         </div>
-    </section>
+    </div>
+</section>
+
+<!-- AREA VISI & FOKUS AREA (Ubah background menjadi transparan) -->
+<section style="padding: 80px 20px; background-color: transparent;">
+    <div style="max-width: 900px; margin: 0 auto; text-align: center;">
+        <h2 style="color: #0f2b5b; font-size: 28px; margin-bottom: 15px; font-weight: 800;">Visi & Fokus Area</h2>
+        <div style="width: 50px; height: 3px; background-color: #D4AF37; margin: 0 auto 40px auto; border-radius: 2px;"></div>
+        
+        <p style="font-size: 17px; color: #555; line-height: 1.8; margin-bottom: 50px;">
+            Sebagai mahasiswa Ilmu Komputer, aku memiliki minat mendalam pada pengembangan perangkat lunak yang efisien dan desain arsitektur data. Aku percaya bahwa teknologi terbaik adalah teknologi yang tidak hanya canggih di belakang layar, tetapi juga mudah dan nyaman digunakan oleh manusia di baliknya.
+        </p>
+        
+        <div style="display: flex; gap: 25px; justify-content: center; flex-wrap: wrap;">
+            <!-- Kartu dengan latar putih bersih agar menonjol di atas mahkota -->
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 30px 20px; border-radius: 12px; width: 260px; box-shadow: 0 5px 15px rgba(15, 43, 91, 0.05); border-bottom: 4px solid #0f2b5b; transition: transform 0.3s; position: relative; z-index: 10;">
+                <i class="fa-solid fa-code" style="font-size: 32px; color: #D4AF37; margin-bottom: 20px;"></i>
+                <h3 style="margin: 0 0 10px 0; color: #0f2b5b; font-size: 18px;">Web Development</h3>
+                <p style="margin: 0; font-size: 14px; color: #666;">Fokus pada backend Django dan antarmuka responsif.</p>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 30px 20px; border-radius: 12px; width: 260px; box-shadow: 0 5px 15px rgba(15, 43, 91, 0.05); border-bottom: 4px solid #0f2b5b; transition: transform 0.3s; position: relative; z-index: 10;">
+                <i class="fa-solid fa-chart-line" style="font-size: 32px; color: #D4AF37; margin-bottom: 20px;"></i>
+                <h3 style="margin: 0 0 10px 0; color: #0f2b5b; font-size: 18px;">Data Science</h3>
+                <p style="margin: 0; font-size: 14px; color: #666;">Mengolah data mentah menjadi informasi bermakna.</p>
+            </div>
+            
+            <div style="background: rgba(255, 255, 255, 0.95); padding: 30px 20px; border-radius: 12px; width: 260px; box-shadow: 0 5px 15px rgba(15, 43, 91, 0.05); border-bottom: 4px solid #0f2b5b; transition: transform 0.3s; position: relative; z-index: 10;">
+                <i class="fa-solid fa-people-group" style="font-size: 32px; color: #D4AF37; margin-bottom: 20px;"></i>
+                <h3 style="margin: 0 0 10px 0; color: #0f2b5b; font-size: 18px;">Leadership</h3>
+                <p style="margin: 0; font-size: 14px; color: #666;">Berpengalaman memimpin divisi dalam berbagai kepanitiaan.</p>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock content %}

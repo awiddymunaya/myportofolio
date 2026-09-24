@@ -1,56 +1,212 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends "base.html" %}
+
+{% block meta %}
+    <title>Experience - {{ name }}</title>
+    <style>
+        .exp-section {
+            padding: 60px 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .exp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px; /* Jarak diperkecil karena ada search bar */
+            border-bottom: 2px solid #D4AF37;
+            padding-bottom: 15px;
+        }
+        .exp-header h1 {
+            color: #0f2b5b;
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+        }
+        .btn-add-gold {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #D4AF37, #B5952F);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+            transition: transform 0.2s;
+        }
+        .btn-add-gold:hover {
+            transform: translateY(-2px);
+        }
+
+        /* --- GAYA BARU: Kotak Pencarian Elegan --- */
+        .search-container {
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: flex-end; /* Memposisikan di kanan */
+        }
+        .search-form {
+            display: flex;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 4px 15px rgba(15, 43, 91, 0.08);
+            border-radius: 30px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            transition: border-color 0.3s;
+        }
+        .search-form:focus-within {
+            border-color: #D4AF37;
+        }
+        .search-input {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+        }
+        .search-btn {
+            background-color: #0f2b5b;
+            color: #D4AF37;
+            border: none;
+            padding: 0 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .search-btn:hover {
+            background-color: #1a365d;
+        }
+        /* ----------------------------------------- */
+        
+        /* Grid Gaya Kartu Instagram */
+        .exp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+        }
+        .exp-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(15, 43, 91, 0.08);
+            border-top: 4px solid #0f2b5b;
+            transition: transform 0.3s;
+        }
+        .exp-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .exp-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            filter: contrast(1.1);
+        }
+        .exp-content {
+            padding: 20px;
+        }
+        .exp-title {
+            color: #0f2b5b;
+            margin: 0 0 5px 0;
+            font-size: 18px;
+        }
+        .exp-org {
+            color: #D4AF37;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            font-size: 14px;
+        }
+        .exp-date {
+            color: #666;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+        .exp-desc {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .exp-actions {
+            display: flex;
+            gap: 10px;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+        .btn-action {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+        .btn-edit { background: #0f2b5b; color: #D4AF37; border: 1px solid #0f2b5b; }
+        .btn-delete { background: white; color: #c62828; border: 1px solid #c62828; }
+    </style>
+{% endblock meta %}
 
 {% block content %}
-<section class="experience-section" id="experience">
-    <div class="container">
-        <p class="section-kicker">Perjalanan saya sejauh ini</p>
+<section class="exp-section">
+    <div class="exp-header">
+        <h1>Riwayat Pengalaman</h1>
         
-        <div class="experience-header">
-            <h1>Experience</h1>
-            <a href="{% url 'main:create_experience' %}" class="button experience-add-button">
-                <span aria-hidden="true">+</span> Tambah Pengalaman
-            </a>
-        </div>
+        {% if user.is_authenticated %}
+            <a href="{% url 'main:create_experience' %}" class="btn-add-gold">+ Tambah Pengalaman</a>
+        {% endif %}
+    </div>
 
-        <form method="get" action="{% url 'main:show_experience' %}" class="experience-search">
-            <input type="search" name="title" value="{{ title_query }}" 
-                   placeholder="Cari berdasarkan nama posisi/jabatan" 
-                   class="experience-search_input" aria-label="Cari pengalaman">
-            <button type="submit" class="button">Cari</button>
+    <!-- AREA BARU: Formulir Pencarian (Search Bar) -->
+    <div class="search-container">
+        <!-- Pastikan nilai "name" (di sini: 'q') sama dengan yang ada di views.py milikmu -->
+        <form method="GET" class="search-form">
+            <input type="text" name="q" class="search-input" placeholder="Cari pengalaman..." value="{{ request.GET.q }}">
+            <button type="submit" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Cari</button>
         </form>
+    </div>
 
-        <div class="experience-grid">
-            {% for experience in experience_list %}
-                <article class="experience-card">
-                    {% if experience.thumbnail %}
-                        <img src="{{ experience.thumbnail }}" alt="Logo {{ experience.title }}" class="experience-img">
+    <div class="exp-grid">
+        {% for exp in experiences %}
+            <div class="exp-card">
+                
+                {% if "TemanKita" in exp.organization %}
+                    <img src="/static/img/TemanKita.jpg" alt="TemanKita" class="exp-img">
+                {% elif "BETIS" in exp.organization %}
+                    <img src="/static/img/Betis.jpg" alt="BETIS" class="exp-img">
+                {% else %}
+                    <div style="height: 10px; background: linear-gradient(90deg, #0f2b5b, #D4AF37);"></div>
+                {% endif %}
+
+                <div class="exp-content">
+                    <h3 class="exp-title">{{ exp.title }}</h3>
+                    <p class="exp-org">{{ exp.organization }}</p>
+                    <p class="exp-date"><i class="fa-regular fa-calendar"></i> {{ exp.start_date|date:"M Y" }} - {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}</p>
+                    
+                    {% if exp.description %}
+                        <p class="exp-desc">{{ exp.description }}</p>
                     {% endif %}
                     
-                    <span class="experience-category">{{ experience.get_category_display }}</span>
-                    <h2>{{ experience.title }}</h2>
-                    <p class="experience-description">{{ experience.description }}</p>
-
-                    <div class="experience-card-actions">
-                        {% if experience.is_ongoing %}
-                            <p class="experience-status">Sedang berlangsung</p>
-                        {% else %}
-                            <p class="experience-status">Selesai</p>
-                        {% endif %}
-                        
-                        <div class="experience-actions">
-                            {% include "components/experience_delete_modal.html" with experience=experience %}
+                    {% if user.is_authenticated %}
+                        <div class="exp-actions">
+                            <a href="{% url 'main:update_experience' exp.id %}" class="btn-action btn-edit">Edit</a>
+                            <form method="post" action="{% url 'main:delete_experience' exp.id %}" style="flex: 1; margin: 0; display: flex;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-delete" style="width: 100%; border: 1px solid #c62828; background: transparent;" onclick="return confirm('Yakin ingin menghapus?');">Hapus</button>
+                            </form>
                         </div>
-                    </div>
-                </article>
-            {% empty %}
-                {% if title_query %}
-                    <p class="empty-state">Tidak ada pengalaman dengan nama tersebut.</p>
-                {% else %}
-                    <p class="empty-state">Belum ada pengalaman yang ditambahkan.</p>
-                {% endif %}
-            {% endfor %}
-        </div>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px; border: 2px dashed #0f2b5b; border-radius: 12px; color: #0f2b5b;">
+                <p>Belum ada riwayat pengalaman yang tercatat atau sesuai dengan pencarianmu.</p>
+            </div>
+        {% endfor %}
+        
     </div>
 </section>
 {% endblock content %}

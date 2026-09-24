@@ -39,10 +39,29 @@
         </div>
         
         <div class="form-container" style="max-width: 650px; margin: 0 auto; padding: 30px; background-color: rgba(255, 255, 255, 0.95); border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            
+            <!-- TAMBAHAN BARU: Menampilkan Pesan Error jika Kode Salah -->
+            {% if messages %}
+                <div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 6px; margin-bottom: 25px; text-align: center; border-left: 5px solid #c62828;">
+                    {% for message in messages %}
+                        <strong><i class="fa-solid fa-triangle-exclamation"></i> {{ message }}</strong>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
             <form method="POST">
                 {% csrf_token %}
                 <table class="custom-form-table" style="width: 100%; border-collapse: collapse;">
                     {{ form.as_table }}
+                    
+                    <!-- TAMBAHAN BARU: Kolom Input Access Code -->
+                    <tr>
+                        <th><label for="id_access_code">Access Code</label></th>
+                        <td>
+                            <input type="password" name="access_code" id="id_access_code" required placeholder="Masukkan kode rahasia...">
+                        </td>
+                    </tr>
+                    
                 </table>
                 <div style="margin-top: 30px; text-align: right;">
                     <a href="{% url 'main:show_education' %}" style="text-decoration: none; color: #666; margin-right: 20px; font-weight: bold;">Batal</a>
