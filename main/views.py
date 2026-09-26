@@ -124,7 +124,10 @@ def get_educations_json(request):
     return HttpResponse(educations_json, content_type="application/json")
 
 def show_education(request):
-    educations = Education.objects.all()
+    # Tambahkan .order_by('-start_year') agar terurut dari tahun terbaru ke terlama
+    # Jika ingin dari SD ke SMA, gunakan .order_by('start_year') tanpa tanda minus
+    educations = Education.objects.all().order_by('-start_year') 
+    
     context = {
         'educations': educations,
         'name': "Awiddy Munaya Rajanadoli",

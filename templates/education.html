@@ -3,166 +3,228 @@
 
 {% block meta %}
 <style>
-    /* Desain Elegan untuk Riwayat Pendidikan */
+    /* =========================================
+       TEMA ZIG-ZAG HORIZONTAL - AKSEN GARIS PRESISI
+       ========================================= */
     .edu-section {
         padding: 60px 20px;
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     }
     
     .edu-header-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 40px;
-        padding-bottom: 15px;
-        border-bottom: 2px solid #D4AF37; /* Garis emas di bawah judul */
+        text-align: center;
+        margin-bottom: 60px;
     }
     
     .edu-header-container h1 {
-        color: #0f2b5b; /* Royal Blue */
-        margin: 0;
-        font-size: 32px;
-        font-weight: 800;
-        text-transform: uppercase;
+        color: #0f2b5b;
+        margin: 0 0 10px 0;
+        font-size: 38px;
+        font-weight: 900;
         letter-spacing: 1px;
     }
-
-    /* Tombol Tambah Elegan */
-    .btn-add-gold {
-        padding: 10px 20px;
-        background: linear-gradient(135deg, #D4AF37, #B5952F);
-        color: white;
-        text-decoration: none;
-        border-radius: 30px; /* Bentuk pil */
-        font-weight: bold;
-        font-size: 14px;
-        box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .btn-add-gold:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(212, 175, 55, 0.5);
-    }
-
-    /* Gaya Timeline */
-    .timeline {
-        position: relative;
-        padding-left: 30px; /* Ruang untuk garis */
-    }
     
-    /* Garis vertikal timeline */
-    .timeline::before {
+    .edu-subtitle {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 25px;
+    }
+
+    .btn-add-gold {
+        display: inline-block;
+        padding: 10px 25px;
+        background: #ffb703;
+        color: #0f2b5b;
+        text-decoration: none;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 14px;
+        transition: transform 0.2s;
+    }
+    .btn-add-gold:hover { transform: translateY(-2px); }
+
+    /* --- TIMELINE CONTAINER --- */
+    .royal-timeline {
+        position: relative;
+        max-width: 100%;
+        margin: 0 auto;
+        padding: 20px 0;
+    }
+
+    /* Garis Tengah */
+    .royal-timeline::after {
         content: '';
         position: absolute;
-        left: 0;
+        width: 2px;
+        background-color: #ffb703;
         top: 0;
         bottom: 0;
-        width: 4px;
-        background: #0f2b5b; /* Garis Royal Blue */
-        border-radius: 2px;
+        left: 50%;
+        margin-left: -1px;
     }
 
-    /* Kartu Pendidikan */
-    .edu-card {
+    /* --- TIMELINE ITEM --- */
+    .timeline-item {
+        padding: 20px 40px;
         position: relative;
-        background: rgba(255, 255, 255, 0.95);
-        padding: 25px 30px;
-        border-radius: 10px;
-        margin-bottom: 30px;
-        /* Bayangan Royal Blue lembut */
-        box-shadow: 0 8px 25px rgba(15, 43, 91, 0.08);
-        border-left: 4px solid #D4AF37; /* Aksen Emas di kiri kartu */
-        transition: transform 0.3s ease;
-    }
-    .edu-card:hover {
-        transform: translateX(5px);
+        width: 50%;
+        box-sizing: border-box;
     }
 
-    /* Titik Emas di garis timeline */
-    .edu-card::before {
+    .timeline-item:nth-child(odd) { left: 0; }
+    .timeline-item:nth-child(even) { left: 50%; }
+
+    /* Titik Pusat di Garis Tengah */
+    .timeline-item::after {
         content: '';
         position: absolute;
-        left: -40px; /* Posisikan tepat di atas garis biru */
-        top: 30px;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
+        background-color: #ffb703;
+        border: 4px solid #fff;
         border-radius: 50%;
-        background-color: #D4AF37;
-        border: 4px solid white;
-        box-shadow: 0 0 0 2px #0f2b5b; /* Cincin luar biru */
+        top: 50%;
+        transform: translateY(-50%);
         z-index: 1;
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.05);
     }
 
-    /* Teks di dalam kartu */
-    .edu-institution {
-        color: #0f2b5b;
-        margin: 0 0 8px 0;
-        font-size: 22px;
-        font-weight: bold;
-    }
-    .edu-meta {
-        display: inline-block;
-        background-color: rgba(212, 175, 55, 0.15);
-        color: #B5952F; /* Emas gelap */
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: bold;
-        margin-bottom: 15px;
-    }
-    .edu-desc {
-        color: #555;
-        line-height: 1.6;
-        margin-bottom: 20px;
-    }
+    .timeline-item:nth-child(odd)::after { right: -11px; }
+    .timeline-item:nth-child(even)::after { left: -11px; }
 
-    /* Container Tombol Aksi */
-    .edu-actions {
+    /* --- KARTU PERSEGI PANJANG (HORIZONTAL) --- */
+    .timeline-card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        border: 1px solid #f0f0f0;
         display: flex;
-        gap: 12px;
+        flex-direction: row;
         align-items: center;
-        border-top: 1px solid #eee;
-        padding-top: 15px;
+        gap: 20px;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        transition: transform 0.2s ease;
     }
     
-    /* Tombol Edit dan Hapus yang Seragam dan Rapi */
-    .btn-action {
-        display: inline-flex;
+    .timeline-card:hover { transform: translateY(-3px); }
+
+    /* --- LOGIKA POSISI GARIS AKSEN KUNING --- */
+    /* Kartu di SISIR KIRI (ganjil): Garis kuning di KANAN menghadap ke tengah */
+    .timeline-item:nth-child(odd) .timeline-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        width: 5px;
+        background-color: #ffb703;
+    }
+
+    /* Kartu di SISI KANAN (genap): Garis kuning di KIRI menghadap ke tengah */
+    .timeline-item:nth-child(even) .timeline-card::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 5px;
+        background-color: #ffb703;
+    }
+
+    /* KOTAK LOGO KIRI */
+    .edu-logo-box {
+        width: 65px;
+        height: 65px;
+        flex-shrink: 0;
+        border-radius: 12px;
+        border: 1px solid #f0f0f0;
+        background: #fcfcfc;
+        display: flex;
         align-items: center;
         justify-content: center;
-        height: 34px;
-        padding: 0 16px;
-        border-radius: 4px;
-        font-size: 13px;
-        font-weight: bold;
-        text-decoration: none;
+        padding: 8px;
         box-sizing: border-box;
-        cursor: pointer;
-        transition: opacity 0.2s;
     }
-    .btn-action:hover {
-        opacity: 0.8;
+    .edu-logo-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
     }
-    .btn-edit {
-        background-color: #0f2b5b; /* Edit menggunakan Royal Blue */
-        color: #D4AF37; /* Teks Emas */
-        border: 1px solid #D4AF37;
+    .edu-logo-fallback {
+        color: #0f2b5b;
+        font-size: 26px;
     }
-    .btn-delete {
-        background-color: transparent;
-        color: #c62828;
-        border: 1px solid #c62828;
+
+    /* KONTEN TEKS KANAN */
+    .edu-content {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        flex-grow: 1;
+        text-align: left;
     }
     
-    .empty-state {
-        text-align: center;
-        padding: 50px;
-        background: rgba(255, 255, 255, 0.8);
-        border: 2px dashed #0f2b5b;
-        border-radius: 12px;
+    .year-badge {
+        display: inline-block;
+        background-color: #ffb703;
         color: #0f2b5b;
+        padding: 4px 12px;
+        border-radius: 14px;
+        font-size: 11px;
+        font-weight: 800;
+        margin-bottom: 6px;
+        letter-spacing: 0.5px;
+    }
+
+    .edu-institution {
+        color: #0f2b5b;
+        margin: 0 0 4px 0;
+        font-size: 18px;
+        font-weight: 800;
+    }
+    
+    .edu-level {
+        color: #888;
+        font-size: 13px;
+        margin: 0;
+        font-weight: 400;
+    }
+
+    .edu-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #f5f5f5;
+        width: 100%;
+    }
+    .btn-action {
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 11px;
         font-weight: bold;
+        text-decoration: none;
+        cursor: pointer;
+        border: none;
+    }
+    .btn-edit { background-color: #f0f4f8; color: #0f2b5b; }
+    .btn-delete { background-color: #fff0f0; color: #c62828; }
+
+    /* RESPONSIVITAS HP */
+    @media screen and (max-width: 768px) {
+        .royal-timeline::after { left: 24px; }
+        .timeline-item { width: 100%; padding-left: 55px; padding-right: 15px; }
+        .timeline-item:nth-child(even) { left: 0%; }
+        .timeline-item:nth-child(odd)::after, 
+        .timeline-item:nth-child(even)::after { left: 16px; }
+        .timeline-card { padding: 15px; }
+        /* Di HP karena lurus ke kiri, garis kuning selalu di kiri */
+        .timeline-item:nth-child(odd) .timeline-card::after { right: auto; left: 0; }
     }
 </style>
 {% endblock meta %}
@@ -171,49 +233,56 @@
 <section class="edu-section">
     
     <div class="edu-header-container">
-        <h1>Riwayat Pendidikan</h1>
+        <h1>Education</h1>
+        <p class="edu-subtitle">Where I've studied, learned, and grown</p>
         
-        <!-- OTORISASI: Hanya Pemilik (Superuser) yang bisa Tambah Data -->
         {% if user.is_superuser %}
             <a href="{% url 'main:create_education' %}" class="btn-add-gold">+ Tambah Pendidikan</a>
         {% endif %}
     </div>
 
-    <div class="timeline">
+    <div class="royal-timeline">
         {% for edu in educations %}
-            <div class="edu-card">
-                <h2 class="edu-institution">{{ edu.institution_name }}</h2>
-                
-                <div class="edu-meta">
-                    {{ edu.level }} &nbsp;&bull;&nbsp; {{ edu.start_year }} - {{ edu.end_year }}
-                </div>
-                
-                {% if edu.description %}
-                    <p class="edu-desc">{{ edu.description }}</p>
-                {% endif %}
-                
-                <!-- OTORISASI: Hanya Pemilik atau Editor yang melihat kontainer aksi -->
-                {% if user.is_superuser or is_editor %}
-                    <div class="edu-actions">
-                        
-                        <!-- Tombol Edit: Untuk Pemilik (Superuser) DAN Editor -->
-                        <a href="{% url 'main:update_education' edu.id %}" class="btn-action btn-edit">Edit Data</a>
-                        
-                        <!-- OTORISASI: Hanya Pemilik (Superuser) yang bisa Hapus Data -->
-                        {% if user.is_superuser %}
-                            <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0; display: inline-flex;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-action btn-delete" onclick="return confirm('Yakin ingin menghapus riwayat pendidikan ini?')">Hapus</button>
-                            </form>
+            <div class="timeline-item">
+                <div class="timeline-card">
+                    
+                    <div class="edu-logo-box">
+                        {% if "Insan Cendekia" in edu.institution_name %}
+                            <img src="#" alt="SMP" onerror="this.style.display='none'">
+                        {% elif "Sumatera Barat" in edu.institution_name %}
+                            <img src="#" alt="SMA" onerror="this.style.display='none'">
+                        {% elif "Indonesia" in edu.institution_name or "UI" in edu.institution_name %}
+                            <img src="#" alt="UI" onerror="this.style.display='none'">
+                        {% else %}
+                            <i class="fa-solid fa-graduation-cap edu-logo-fallback"></i>
                         {% endif %}
-                        
                     </div>
-                {% endif %}
+
+                    <div class="edu-content">
+                        <div class="year-badge">
+                            {{ edu.start_year }} - {% if edu.end_year %}{{ edu.end_year }}{% else %}Present{% endif %}
+                        </div>
+                        <h3 class="edu-institution">{{ edu.institution_name }}</h3>
+                        <p class="edu-level">{{ edu.level }}</p>
+                        
+                        {% if user.is_superuser or is_editor %}
+                            <div class="edu-actions">
+                                <a href="{% url 'main:update_education' edu.id %}" class="btn-action btn-edit">Edit</a>
+                                {% if user.is_superuser %}
+                                    <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-action btn-delete" onclick="return confirm('Hapus riwayat ini?')">Hapus</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
             </div>
-            
         {% empty %}
-            <div class="empty-state">
-                <p>Belum ada riwayat pendidikan yang tercatat dalam arsip kerajaan.</p>
+            <div style="text-align: center; padding: 40px; border: 1px solid #e0e0e0; border-radius: 12px; color: #888; grid-column: 1 / -1; background: white;">
+                <p>Belum ada riwayat pendidikan yang tercatat.</p>
             </div>
         {% endfor %}
     </div>
