@@ -173,7 +173,8 @@
     <div class="edu-header-container">
         <h1>Riwayat Pendidikan</h1>
         
-        {% if user.is_authenticated %}
+        <!-- OTORISASI: Hanya Pemilik (Superuser) yang bisa Tambah Data -->
+        {% if user.is_superuser %}
             <a href="{% url 'main:create_education' %}" class="btn-add-gold">+ Tambah Pendidikan</a>
         {% endif %}
     </div>
@@ -191,14 +192,21 @@
                     <p class="edu-desc">{{ edu.description }}</p>
                 {% endif %}
                 
-                {% if user.is_authenticated %}
+                <!-- OTORISASI: Hanya Pemilik atau Editor yang melihat kontainer aksi -->
+                {% if user.is_superuser or is_editor %}
                     <div class="edu-actions">
+                        
+                        <!-- Tombol Edit: Untuk Pemilik (Superuser) DAN Editor -->
                         <a href="{% url 'main:update_education' edu.id %}" class="btn-action btn-edit">Edit Data</a>
                         
-                        <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0; display: inline-flex;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-action btn-delete" onclick="return confirm('Yakin ingin menghapus riwayat pendidikan ini?')">Hapus</button>
-                        </form>
+                        <!-- OTORISASI: Hanya Pemilik (Superuser) yang bisa Hapus Data -->
+                        {% if user.is_superuser %}
+                            <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0; display: inline-flex;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-delete" onclick="return confirm('Yakin ingin menghapus riwayat pendidikan ini?')">Hapus</button>
+                            </form>
+                        {% endif %}
+                        
                     </div>
                 {% endif %}
             </div>

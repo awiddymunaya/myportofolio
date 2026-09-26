@@ -12,7 +12,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px; /* Jarak diperkecil karena ada search bar */
+            margin-bottom: 20px;
             border-bottom: 2px solid #D4AF37;
             padding-bottom: 15px;
         }
@@ -37,11 +37,11 @@
             transform: translateY(-2px);
         }
 
-        /* --- GAYA BARU: Kotak Pencarian Elegan --- */
+        /* --- Kotak Pencarian Elegan --- */
         .search-container {
             margin-bottom: 40px;
             display: flex;
-            justify-content: flex-end; /* Memposisikan di kanan */
+            justify-content: flex-end;
         }
         .search-form {
             display: flex;
@@ -76,7 +76,6 @@
         .search-btn:hover {
             background-color: #1a365d;
         }
-        /* ----------------------------------------- */
         
         /* Grid Gaya Kartu Instagram */
         .exp-grid {
@@ -155,14 +154,14 @@
     <div class="exp-header">
         <h1>Riwayat Pengalaman</h1>
         
-        {% if user.is_authenticated %}
+        <!-- HANYA PEMILIK (SUPERUSER) YANG BISA MELIHAT TOMBOL TAMBAH -->
+        {% if user.is_superuser %}
             <a href="{% url 'main:create_experience' %}" class="btn-add-gold">+ Tambah Pengalaman</a>
         {% endif %}
     </div>
 
-    <!-- AREA BARU: Formulir Pencarian (Search Bar) -->
+    <!-- Formulir Pencarian (Search Bar) -->
     <div class="search-container">
-        <!-- Pastikan nilai "name" (di sini: 'q') sama dengan yang ada di views.py milikmu -->
         <form method="GET" class="search-form">
             <input type="text" name="q" class="search-input" placeholder="Cari pengalaman..." value="{{ request.GET.q }}">
             <button type="submit" class="search-btn"><i class="fa-solid fa-magnifying-glass"></i> Cari</button>
@@ -190,13 +189,40 @@
                         <p class="exp-desc">{{ exp.description }}</p>
                     {% endif %}
                     
+                    <!-- FITUR BARU: TOMBOL BINTANG (STAR) UNTUK SEMUA USER LOGIN -->
                     {% if user.is_authenticated %}
-                        <div class="exp-actions">
-                            <a href="{% url 'main:update_experience' exp.id %}" class="btn-action btn-edit">Edit</a>
-                            <form method="post" action="{% url 'main:delete_experience' exp.id %}" style="flex: 1; margin: 0; display: flex;">
+                        <div style="margin-bottom: 15px;">
+                            <form method="POST" action="{% url 'main:toggle_star' exp.id %}" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="btn-action btn-delete" style="width: 100%; border: 1px solid #c62828; background: transparent;" onclick="return confirm('Yakin ingin menghapus?');">Hapus</button>
+                                <button type="submit" style="background: none; border: none; cursor: pointer; color: #D4AF37; font-size: 16px; padding: 0;">
+                                    {% if user in exp.stars.all %}
+                                        <!-- Bintang penuh jika sudah dilike -->
+                                        <i class="fa-solid fa-star"></i> 
+                                    {% else %}
+                                        <!-- Bintang kosong jika belum dilike -->
+                                        <i class="fa-regular fa-star"></i>
+                                    {% endif %}
+                                    <span style="font-size: 14px; font-weight: bold; color: #333; margin-left: 5px;">{{ exp.total_stars }} Stars</span>
+                                </button>
                             </form>
+                        </div>
+                    {% endif %}
+                    
+                    <!-- TOMBOL AKSI: HANYA MUNCUL JIKA USER ADALAH PEMILIK ATAU EDITOR -->
+                    {% if user.is_superuser or is_editor %}
+                        <div class="exp-actions">
+                            
+                            <!-- Tombol Edit: Untuk Pemilik (Superuser) DAN Editor -->
+                            <a href="{% url 'main:update_experience' exp.id %}" class="btn-action btn-edit">Edit</a>
+                            
+                            <!-- Tombol Hapus: HANYA Untuk Pemilik (Superuser) -->
+                            {% if user.is_superuser %}
+                                <form method="post" action="{% url 'main:delete_experience' exp.id %}" style="flex: 1; margin: 0; display: flex;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-action btn-delete" style="width: 100%; border: 1px solid #c62828; background: transparent;" onclick="return confirm('Yakin ingin menghapus?');">Hapus</button>
+                                </form>
+                            {% endif %}
+                            
                         </div>
                     {% endif %}
                 </div>

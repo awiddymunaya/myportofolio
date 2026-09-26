@@ -101,3 +101,25 @@ Dalam pengerjaan tugas minggu ini, saya menggunakan bantuan AI (Large Language M
 * **Prompting Strategy:** Saya memberikan konteks berupa potongan kode (models, forms, views) dan *error traceback* dari terminal untuk mencari akar masalah saat terjadi kegagalan migrasi di PWS.
 * **Keterbatasan AI:** AI terkadang tidak mengetahui status terkini dari *database* lokal saya atau salah memberikan asumsi terkait riwayat file migrasi yang bertabrakan.
 * **Perbaikan Manual:** Saya secara manual harus memverifikasi urutan *dependencies* pada file migrasi (`0005_...py`), menghapus file migrasi yang *corrupt*, menyesuaikan *styling* CSS menggunakan tema 'Royal Blue' dan 'Gold' yang spesifik untuk UI portofolio saya, dan menjalankan perintah `dumpdata` untuk mengatur fitur *Data Migration* agar sinkron dengan PWS.
+
+
+#Tugas 4
+# 👑 Royal Portfolio - Awiddy Munaya
+
+Proyek ini adalah sebuah aplikasi web portofolio pribadi berbasis Django yang dirancang untuk menampilkan profil, riwayat pengalaman, dan riwayat pendidikan dengan balutan antarmuka eksklusif bertema **Royal Blue & Gold**. Aplikasi ini dikembangkan sebagai pemenuhan Tugas Individu mata kuliah Pemrograman Berbasis Platform (CSGE602022) di Fakultas Ilmu Komputer, Universitas Indonesia.
+
+## 🚀 Fitur Utama
+* **Desain Eksklusif:** Antarmuka responsif dengan skema warna yang konsisten dan animasi interaktif.
+* **Role-Based Access Control (RBAC):** Sistem otorisasi 4 tingkat (Superuser, Editor, Pengguna Biasa, dan Pengunjung Anonim) yang membatasi hak akses CRUD di sisi server maupun tampilan UI.
+* **Fitur Interaktif (Star):** Pengguna yang sudah *login* dapat memberikan *star* (bintang) pada riwayat pengalaman favorit layaknya platform profesional.
+
+---
+
+## 🛠️ Instruksi Setup Lokal
+
+Ikuti langkah-langkah berikut untuk menjalankan proyek ini di mesin lokalmu:
+
+1. **Kloning Repositori**
+   ```bash
+   git clone <URL_REPOSITORI_GITHUB_KAMU>
+   cd myportofolio
