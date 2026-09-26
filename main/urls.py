@@ -10,9 +10,10 @@ from main.views import (
     update_education,
     delete_education,
     get_educations_json,
-    register,       # Tambahan baru
-    login_user,     # Tambahan baru
-    logout_user     # Tambahan baru
+    register,
+    login_user,
+    logout_user,
+    toggle_star # Fungsi baru dipanggil di sini
 )
 
 app_name = "main"
@@ -25,6 +26,7 @@ urlpatterns = [
     path("experience/add/", create_experience, name="create_experience"),
     path("api/experience/", get_experiences_json, name="get_experiences_json"),
     path("experience/<uuid:experience_id>/delete/", delete_experience, name="delete_experience"),
+    path("experience/<uuid:experience_id>/star/", toggle_star, name="toggle_star"), # URL Bintang
     
     # --- URL Education ---
     path("education/", show_education, name="show_education"),
