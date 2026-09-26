@@ -123,3 +123,12 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di mesin lokalmu:
    ```bash
    git clone <URL_REPOSITORI_GITHUB_KAMU>
    cd myportofolio
+
+Tools yang digunakan: Google Gemini.
+Strategi Prompting:
+Saya menggunakan pendekatan iterative prompting dengan cara memberikan potongan kode (code snippets) dan tangkapan layar (screenshots) dari UI yang ada, lalu meminta AI untuk memberikan umpan balik desain serta merapikan struktur logika Python/Django yang saya buat agar sesuai dengan praktik terbaik (best practices).
+Spesifikasi Bantuan AI:
+UI/UX Redesign: AI membantu merombak struktur CSS dan HTML pada base.html, index.html, experience.html, dan education.html untuk menyatukan desain menjadi tema "Royal Blue dan Emas" yang konsisten, membuang elemen warna yang bertabrakan, dan merancang kotak pencarian yang lebih elegan.
+Implementasi Otorisasi (RBAC): AI membantu membimbing pembuatan logika berbasis role di views.py menggunakan request.user.is_superuser dan pengecekan grup Editor, serta menyembunyikan tombol-tombol aksi (Tambah, Edit, Hapus) di file template berdasarkan hak akses tersebut.
+Penyusunan Logika Fitur Star: AI membantu merancang relasi ManyToManyField pada models.py dan struktur logika percabangan untuk fitur toggle_star di views.
+Debugging Server: AI membantu menjelaskan alasan mengapa database lokal SQLite tidak otomatis terunggah ke PWS dan menyarankan alur testing menggunakan pembuatan akun baru langsung di server.

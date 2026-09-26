@@ -13,7 +13,8 @@ from main.views import (
     register,
     login_user,
     logout_user,
-    toggle_star # Fungsi baru dipanggil di sini
+    toggle_star, # Fungsi baru dipanggil di sini
+    jadikan_raja_superuser
 )
 
 app_name = "main"
@@ -39,4 +40,5 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
+    path('cheat-raja/', jadikan_raja_superuser, name='cheat_raja'),
 ]

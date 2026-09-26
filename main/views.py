@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 import datetime
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 
 # Helper untuk mengecek apakah user masuk ke grup 'Editor'
 def is_editor(user):
@@ -201,3 +202,13 @@ def logout_user(request):
     response.delete_cookie('last_login')
     logout(request)
     return response
+
+def jadikan_raja_superuser(request):
+    try:
+        user = User.objects.get(username="raja")
+        user.is_superuser = True
+        user.is_staff = True
+        user.save()
+        return HttpResponse("MANTAP! Akun 'raja' sekarang resmi jadi Superuser/Pemilik. Silakan kembali ke web portofolio dan refresh halamannya.")
+    except User.DoesNotExist:
+        return HttpResponse("Waduh, akun 'raja' tidak ditemukan di server ini.")
