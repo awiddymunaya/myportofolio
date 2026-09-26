@@ -14,7 +14,8 @@ from main.views import (
     login_user,
     logout_user,
     toggle_star, # Fungsi baru dipanggil di sini
-    jadikan_raja_superuser
+    jadikan_raja_superuser,
+    update_experience,
 )
 
 app_name = "main"
@@ -41,4 +42,5 @@ urlpatterns = [
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('cheat-raja/', jadikan_raja_superuser, name='cheat_raja'),
+    path("experience/<uuid:experience_id>/update/", update_experience, name="update_experience"),
 ]

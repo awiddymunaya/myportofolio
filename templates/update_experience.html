@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block meta %}
+<title>Edit Pengalaman - {{ name }}</title>
+<style>
+    .form-section {
+        padding: 60px 20px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    .form-container {
+        background: white;
+        padding: 40px;
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(15, 43, 91, 0.1);
+        border-top: 4px solid #D4AF37;
+    }
+    .form-title {
+        color: #0f2b5b;
+        margin-top: 0;
+        margin-bottom: 25px;
+        text-align: center;
+        font-weight: 800;
+    }
+    table {
+        width: 100%;
+    }
+    td, th {
+        padding: 10px 0;
+        text-align: left;
+    }
+    input[type="text"], input[type="url"], input[type="number"], textarea, select {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+    }
+    .btn-submit {
+        width: 100%;
+        padding: 12px;
+        background: linear-gradient(135deg, #0f2b5b, #1a365d);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: transform 0.2s;
+    }
+    .btn-submit:hover {
+        transform: translateY(-2px);
+    }
+    .btn-cancel {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        color: #c62828;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+{% endblock meta %}
+
+{% block content %}
+<section class="form-section">
+    <div class="form-container">
+        <h2 class="form-title">Edit Riwayat Pengalaman</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <table>
+                {{ form.as_table }}
+            </table>
+            <button type="submit" class="btn-submit">Simpan Perubahan</button>
+            <a href="{% url 'main:show_experience' %}" class="btn-cancel">Batal</a>
+        </form>
+    </div>
+</section>
+{% endblock content %}

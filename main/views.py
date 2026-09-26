@@ -81,6 +81,27 @@ def delete_experience(request, experience_id):
         return redirect("main:show_experience")
     return redirect("main:show_experience")
 
+@login_required(login_url='/login')
+def update_experience(request, experience_id):
+    # OTORISASI: Superuser ATAU Editor yang bisa Update
+    if not (request.user.is_superuser or is_editor(request.user)):
+        return HttpResponseForbidden("Akses Ditolak: Minimal peran Editor diperlukan untuk mengubah data.")
+
+    experience = get_object_or_404(Experience, pk=experience_id)
+    form = ExperienceForm(request.POST or None, instance=experience)
+    
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Riwayat pengalaman berhasil diperbarui!")
+        return redirect("main:show_experience")
+
+    context = {
+        "name": "Awiddy Munaya Rajanadoli",
+        "form": form,
+        "experience": experience,
+    }
+    return render(request, "update_experience.html", context)
+
 # FITUR BARU: Bintang (Semua User Login bisa akses)
 @login_required(login_url='/login')
 def toggle_star(request, experience_id):
