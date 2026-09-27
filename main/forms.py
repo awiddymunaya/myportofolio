@@ -48,7 +48,7 @@ class ExperienceForm(ModelForm):
 class EducationForm(ModelForm):
     class Meta:
         model = Education
-        fields = ["level", "institution_name", "start_year", "end_year", "description"]
+        fields = ["level", "institution_name", "start_year", "end_year", "description", "logo_url"]
 
         labels = {
             "level": "Tingkat Pendidikan",
@@ -56,6 +56,7 @@ class EducationForm(ModelForm):
             "start_year": "Tahun Masuk",
             "end_year": "Tahun Lulus (Atau ketik 'Sekarang')",
             "description": "Catatan Tambahan (Opsional)",
+            "logo_url": "URL Logo Institusi (Opsional)",
         }
 
         widgets = {
@@ -85,6 +86,11 @@ class EducationForm(ModelForm):
                 attrs={
                     "placeholder": "Ceritakan pencapaian atau jurusannmu di sini...",
                     "rows": 3,
+                }
+            ),
+            "logo_url": URLInput(
+                attrs={
+                    "placeholder": "Contoh: https://upload.wikimedia.org/.../logo.png",
                 }
             ),
         }

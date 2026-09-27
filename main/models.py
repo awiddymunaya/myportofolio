@@ -42,6 +42,6 @@ class Education(models.Model):
     start_year = models.IntegerField() 
     end_year = models.CharField(max_length=20) 
     description = models.TextField(blank=True, null=True) 
-
+    logo_url = models.URLField(blank=True, null=True)
     def __str__(self):
         return f"{self.level} - {self.institution_name}"

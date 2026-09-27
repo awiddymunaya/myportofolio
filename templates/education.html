@@ -134,7 +134,7 @@
         bottom: 0;
         right: 0;
         width: 5px;
-        background-color: #0f2b5b; /* Diubah jadi Royal Blue */
+        background-color: #0f2b5b; /* Royal Blue Kanan */
     }
 
     .timeline-item:nth-child(even) .timeline-card::after {
@@ -144,7 +144,7 @@
         bottom: 0;
         left: 0;
         width: 5px;
-        background-color: #0f2b5b; /* Diubah jadi Royal Blue */
+        background-color: #0f2b5b; /* Royal Blue Kiri */
     }
 
     /* KOTAK LOGO KIRI */
@@ -257,13 +257,10 @@
             <div class="timeline-item">
                 <div class="timeline-card">
                     
+                    <!-- KOTAK LOGO YANG SUDAH TERHUBUNG KE DATABASE -->
                     <div class="edu-logo-box">
-                        {% if "Insan Cendekia" in edu.institution_name %}
-                            <img src="#" alt="SMP" onerror="this.style.display='none'">
-                        {% elif "Sumatera Barat" in edu.institution_name %}
-                            <img src="#" alt="SMA" onerror="this.style.display='none'">
-                        {% elif "Indonesia" in edu.institution_name or "UI" in edu.institution_name %}
-                            <img src="#" alt="UI" onerror="this.style.display='none'">
+                        {% if edu.logo_url %}
+                            <img src="{{ edu.logo_url }}" alt="{{ edu.institution_name }}" onerror="this.style.display='none'">
                         {% else %}
                             <i class="fa-solid fa-graduation-cap edu-logo-fallback"></i>
                         {% endif %}
