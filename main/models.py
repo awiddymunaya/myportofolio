@@ -16,7 +16,11 @@ class Experience(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
-    thumbnail = models.URLField(blank=True, null=True)
+    
+    # Keduanya diubah menjadi CharField agar bisa menerima teks jalur folder lokal (contoh: /static/img/Betis.jpg)
+    thumbnail = models.CharField(max_length=500, blank=True, null=True) # Untuk foto bukti kegiatan besar
+    logo_url = models.CharField(max_length=500, blank=True, null=True)  # Untuk lambang organisasi kecil
+    
     started_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(blank=True, null=True)
     
@@ -42,6 +46,9 @@ class Education(models.Model):
     start_year = models.IntegerField() 
     end_year = models.CharField(max_length=20) 
     description = models.TextField(blank=True, null=True) 
-    logo_url = models.URLField(blank=True, null=True)
+    
+    # Diubah juga menjadi CharField agar seragam dan bebas error saat pakai gambar folder
+    logo_url = models.CharField(max_length=500, blank=True, null=True)
+
     def __str__(self):
         return f"{self.level} - {self.institution_name}"

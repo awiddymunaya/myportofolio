@@ -1,21 +1,21 @@
-from django.forms import ModelForm, TextInput, Textarea, URLInput, Select, DateInput, NumberInput
+from django.forms import ModelForm, TextInput, Textarea, Select, DateInput, NumberInput
 from main.models import Experience, Education
 
 class ExperienceForm(ModelForm):
     class Meta:
         model = Experience
-        fields = ["title", "description", "category", "thumbnail", "ended_at"]
+        # Menambahkan logo_url ke dalam form fields
+        fields = ["title", "description", "category", "logo_url", "thumbnail", "ended_at"]
 
-        # Mengubah label agar lebih mudah dibaca oleh user saat form ditampilkan
         labels = {
             "title": "Nama Posisi / Jabatan",
             "description": "Deskripsi Pengalaman",
             "category": "Kategori Pekerjaan",
-            "thumbnail": "URL Gambar atau Logo (Opsional)",
+            "logo_url": "Link / Jalur Folder Lambang Organisasi",
+            "thumbnail": "Link / Jalur Folder Foto Bukti Kegiatan",
             "ended_at": "Tanggal Selesai (Kosongkan jika masih berlangsung)",
         }
 
-        # Mengatur tampilan input HTML-nya (tambah placeholder, dll)
         widgets = {
             "title": TextInput(
                 attrs={
@@ -33,14 +33,21 @@ class ExperienceForm(ModelForm):
                     "class": "form-select", 
                 }
             ),
-            "thumbnail": URLInput(
+            # Diubah menjadi TextInput agar bisa membaca jalur file statis
+            "logo_url": TextInput(
                 attrs={
-                    "placeholder": "https://contoh.com/logo-organisasi.png",
+                    "placeholder": "Contoh: https://... atau /static/img/logo.jpg",
+                }
+            ),
+            # Diubah menjadi TextInput agar bisa membaca jalur file statis
+            "thumbnail": TextInput(
+                attrs={
+                    "placeholder": "Contoh: https://... atau /static/img/kegiatan.jpg",
                 }
             ),
             "ended_at": DateInput(
                 attrs={
-                    "type": "date", # Ini bakal memunculkan kalender HTML5 otomatis!
+                    "type": "date", 
                 }
             ),
         }
@@ -56,7 +63,7 @@ class EducationForm(ModelForm):
             "start_year": "Tahun Masuk",
             "end_year": "Tahun Lulus (Atau ketik 'Sekarang')",
             "description": "Catatan Tambahan (Opsional)",
-            "logo_url": "URL Logo Institusi (Opsional)",
+            "logo_url": "Link / Jalur Folder Logo Institusi",
         }
 
         widgets = {
@@ -88,9 +95,10 @@ class EducationForm(ModelForm):
                     "rows": 3,
                 }
             ),
-            "logo_url": URLInput(
+            # Diubah menjadi TextInput agar bisa membaca jalur file statis
+            "logo_url": TextInput(
                 attrs={
-                    "placeholder": "Contoh: https://upload.wikimedia.org/.../logo.png",
+                    "placeholder": "Contoh: https://... atau /static/img/logo.png",
                 }
             ),
         }
