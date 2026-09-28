@@ -4,8 +4,8 @@ from main.models import Experience, Education
 class ExperienceForm(ModelForm):
     class Meta:
         model = Experience
-        # Menambahkan logo_url ke dalam form fields
-        fields = ["title", "description", "category", "logo_url", "thumbnail", "ended_at"]
+        # Menambahkan "started_at" ke dalam list fields
+        fields = ["title", "description", "category", "logo_url", "thumbnail", "started_at", "ended_at"]
 
         labels = {
             "title": "Nama Posisi / Jabatan",
@@ -13,6 +13,7 @@ class ExperienceForm(ModelForm):
             "category": "Kategori Pekerjaan",
             "logo_url": "Link / Jalur Folder Lambang Organisasi",
             "thumbnail": "Link / Jalur Folder Foto Bukti Kegiatan",
+            "started_at": "Tanggal Mulai",
             "ended_at": "Tanggal Selesai (Kosongkan jika masih berlangsung)",
         }
 
@@ -33,16 +34,19 @@ class ExperienceForm(ModelForm):
                     "class": "form-select", 
                 }
             ),
-            # Diubah menjadi TextInput agar bisa membaca jalur file statis
             "logo_url": TextInput(
                 attrs={
                     "placeholder": "Contoh: https://... atau /static/img/logo.jpg",
                 }
             ),
-            # Diubah menjadi TextInput agar bisa membaca jalur file statis
             "thumbnail": TextInput(
                 attrs={
                     "placeholder": "Contoh: https://... atau /static/img/kegiatan.jpg",
+                }
+            ),
+            "started_at": DateInput(
+                attrs={
+                    "type": "date", 
                 }
             ),
             "ended_at": DateInput(
@@ -95,7 +99,6 @@ class EducationForm(ModelForm):
                     "rows": 3,
                 }
             ),
-            # Diubah menjadi TextInput agar bisa membaca jalur file statis
             "logo_url": TextInput(
                 attrs={
                     "placeholder": "Contoh: https://... atau /static/img/logo.png",
