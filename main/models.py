@@ -21,7 +21,7 @@ class Experience(models.Model):
     thumbnail = models.CharField(max_length=500, blank=True, null=True) # Untuk foto bukti kegiatan besar
     logo_url = models.CharField(max_length=500, blank=True, null=True)  # Untuk lambang organisasi kecil
     
-    started_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateField(blank=True, null=True)    
     ended_at = models.DateTimeField(blank=True, null=True)
     
     # FITUR BARU: Relasi Bintang (Star) ke model User
