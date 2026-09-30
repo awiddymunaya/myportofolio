@@ -1,233 +1,54 @@
-{% extends 'base.html' %}
-{% load static %}
+import uuid
+from django.db import models
+from django.contrib.auth.models import User # Mengimpor model User bawaan Django
 
-{% block meta %}
-<style>
-    .exp-section {
-        padding: 40px 20px;
-        max-width: 1200px;
-        margin: 0 auto;
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
-    .exp-header-container { text-align: center; margin-bottom: 40px; }
-    .btn-add-gold {
-        display: inline-block; padding: 10px 25px; background: linear-gradient(135deg, #D4AF37, #B5952F);
-        color: #ffffff; text-decoration: none; border-radius: 20px; font-weight: 800;
-        font-size: 14px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); transition: transform 0.2s; cursor: pointer; border: none;
-    }
-    .btn-add-gold:hover { transform: translateY(-2px); }
-
-    .exp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
-    .exp-card {
-        background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 43, 91, 0.08);
-        border: 1px solid rgba(15, 43, 91, 0.1); display: flex; flex-direction: column;
-        transition: transform 0.2s, box-shadow 0.2s; position: relative;
-    }
-    .exp-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(15, 43, 91, 0.15); }
-    .exp-card::before { content: ''; height: 8px; background: #0f2b5b; display: block; border-bottom: 2px solid #D4AF37; }
-
-    .exp-body { padding: 24px; display: flex; flex-direction: column; flex-grow: 1; }
-    .exp-top-row { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
-    .exp-logo {
-        width: 55px; height: 55px; flex-shrink: 0; border-radius: 10px; background: #fafafc;
-        border: 1px solid rgba(212, 175, 55, 0.3); display: flex; align-items: center; justify-content: center;
-        overflow: hidden; padding: 5px;
-    }
-    .exp-logo img { width: 100%; height: 100%; object-fit: contain; }
-    .exp-logo-fallback { color: #0f2b5b; font-size: 24px; }
-
-    .exp-title-box { flex-grow: 1; }
-    .exp-title { color: #0f2b5b; font-size: 17px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.3; }
-    .exp-date { color: #666; font-size: 12px; margin: 0; display: flex; align-items: center; gap: 6px; }
-    .exp-desc { color: #555; font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; }
-    .exp-proof-photo {
-        width: 100%; height: 160px; border-radius: 8px; margin-bottom: 15px; overflow: hidden;
-        border: 1px solid rgba(15, 43, 91, 0.1); background-color: #f8f9fa;
-    }
-    .exp-proof-photo img { width: 100%; height: 100%; object-fit: cover; }
-
-    .exp-actions { display: flex; gap: 12px; border-top: 1px solid #f0f0f0; padding-top: 16px; }
-    .btn-action {
-        flex: 1; padding: 8px 0; text-align: center; border-radius: 6px; font-size: 13px;
-        font-weight: 700; text-decoration: none; cursor: pointer; transition: opacity 0.2s;
-    }
-    .btn-action:hover { opacity: 0.8; }
-    .btn-edit { background-color: #0f2b5b; color: white; border: none; }
-    .btn-delete { background-color: transparent; color: #c62828; border: 1px solid #c62828; }
-
-    /* STYLING MODAL POP-UP */
-    #crudModal {
-        display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
-    }
-    .modal-content {
-        background-color: #ffffff; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px;
-        box-shadow: 0 15px 35px rgba(15, 43, 91, 0.2); border-top: 6px solid #D4AF37;
-        max-height: 90vh; overflow-y: auto;
-    }
-    .modal-input {
-        width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;
-    }
-</style>
-{% endblock meta %}
-
-{% block content %}
-<section class="exp-section">
-    <div class="exp-header-container">
-        {% if user.is_superuser %}
-            <button onclick="showModal()" class="btn-add-gold">+ Tambah Pengalaman (AJAX)</button>
-        {% endif %}
-    </div>
-    <div id="experience-cards-container" class="exp-grid"></div>
-</section>
-
-<!-- STRUKTUR KOTAK POP-UP MODAL (SUDAH DISESUAIKAN DENGAN MODELS.PY) -->
-<div id="crudModal">
-    <div class="modal-content">
-        <h2 style="color: #0f2b5b; margin-top: 0; text-align: center;">Add New Experience</h2>
-        <form id="addExperienceForm" onsubmit="addExperience(event)">
-            {% csrf_token %}
-            <div style="font-size: 14px; color: #333;">
-                <label>Nama Posisi / Jabatan:</label>
-                <input type="text" id="title" name="title" class="modal-input" required>
-
-                <label>Deskripsi Pengalaman:</label>
-                <textarea id="description" name="description" class="modal-input" rows="3" required></textarea>
-
-                <label>Kategori Pekerjaan (Category):</label>
-                <select id="category" name="category" class="modal-input" required>
-                    <option value="full-time">Full-Time</option>
-                    <option value="part-time">Part-Time</option>
-                    <option value="internship">Internship</option>
-                    <option value="research">Research</option>
-                    <option value="volunteer">Volunteer</option>
-                    <option value="freelance">Freelance</option>
-                </select>
-
-                <label>Link / Path Foto Bukti Kegiatan (Thumbnail):</label>
-                <input type="text" id="thumbnail" name="thumbnail" class="modal-input" placeholder="Contoh: /static/img/Compfest.jpg">
-                
-                <label>Link / Path Logo Organisasi:</label>
-                <input type="text" id="logo_url" name="logo_url" class="modal-input" placeholder="Contoh: /static/img/Betis.jpg">
-
-                <label>Tahun Mulai (Started At):</label>
-                <input type="date" id="started_at" name="started_at" class="modal-input">
-
-                <label>Tahun Selesai (Kosongkan jika masih berlangsung):</label>
-                <input type="date" id="ended_at" name="ended_at" class="modal-input">
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
-                <button type="button" onclick="hideModal()" class="btn-action" style="background-color: #ddd; color: #333; border: none;">Batal</button>
-                <button type="submit" class="btn-action btn-edit">Simpan</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-<!-- SKRIP AJAX & MODAL -->
-<script>
-    const isSuperuser = {{ user.is_superuser|yesno:"true,false"|default:"false" }};
-    const isEditor = {{ is_editor|yesno:"true,false"|default:"false" }};
-
-    function showModal() { document.getElementById('crudModal').style.display = 'flex'; }
-    function hideModal() { 
-        document.getElementById('crudModal').style.display = 'none'; 
-        document.getElementById('addExperienceForm').reset(); 
-    }
-
-    async function getExperiences() {
-        return fetch("{% url 'main:get_experiences_json' %}").then((res) => res.json());
-    }
-
-    async function refreshExperiences() {
-        const container = document.getElementById("experience-cards-container");
-        container.innerHTML = ""; 
+class Experience(models.Model):
+    EXPERIENCE_CHOICES = [
+        ('internship', 'Internship'),
+        ('research', 'Research'),
+        ('volunteer', 'Volunteer'),
+        ('part-time', 'Part-Time'),
+        ('full-time', 'Full-Time'),
+        ('freelance', 'Freelance'),
+    ]
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.CharField(max_length=20, choices=EXPERIENCE_CHOICES, default='full-time')
+    
+    # Keduanya diubah menjadi CharField agar bisa menerima teks jalur folder lokal (contoh: /static/img/Betis.jpg)
+    thumbnail = models.CharField(max_length=500, blank=True, null=True) # Untuk foto bukti kegiatan besar
+    logo_url = models.CharField(max_length=500, blank=True, null=True)  # Untuk lambang organisasi kecil
+    
+    started_at = models.DateField(blank=True, null=True)    
+    ended_at = models.DateTimeField(blank=True, null=True)
+    
+    # FITUR BARU: Relasi Bintang (Star) ke model User
+    stars = models.ManyToManyField(User, related_name='starred_experiences', blank=True)
+    
+    def __str__(self):
+        return self.title
+    
+    @property
+    def is_ongoing(self):
+        return self.ended_at is None
         
-        const experiences = await getExperiences();
-        let htmlString = "";
+    @property
+    def total_stars(self):
+        return self.stars.count()
 
-        if (experiences.length === 0) {
-            htmlString = `
-                <div style="text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; grid-column: 1 / -1; background: white;">
-                    <p>Belum ada pengalaman yang tercatat.</p>
-                </div>`;
-        } else {
-            experiences.forEach((item) => {
-                const exp = item.fields;
-                const pk = item.pk;
 
-                const start = exp.started_at ? new Date(exp.started_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '-';
-                const end = exp.ended_at ? new Date(exp.ended_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : 'Present';
+class Education(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    level = models.CharField(max_length=50)
+    institution_name = models.CharField(max_length=255)
+    start_year = models.IntegerField() 
+    end_year = models.CharField(max_length=20) 
+    description = models.TextField(blank=True, null=True) 
+    
+    # Diubah juga menjadi CharField agar seragam dan bebas error saat pakai gambar folder
+    logo_url = models.CharField(max_length=500, blank=True, null=True)
 
-                const logoHtml = exp.logo_url 
-                    ? `<img src="${exp.logo_url}" alt="Logo" onerror="this.style.display='none'">` 
-                    : `<i class="fa-solid fa-briefcase exp-logo-fallback"></i>`;
-                
-                const thumbnailHtml = exp.thumbnail 
-                    ? `<div class="exp-proof-photo"><img src="${exp.thumbnail}" alt="Bukti Kegiatan" onerror="this.style.display='none'"></div>` 
-                    : ``;
-
-                let buttonsHtml = '';
-                if (isSuperuser || isEditor) {
-                    buttonsHtml = `<div class="exp-actions">
-                        <a href="/experience/${pk}/update/" class="btn-action btn-edit">Edit</a>`;
-                    if (isSuperuser) {
-                        buttonsHtml += `
-                            <form method="POST" action="/experience/${pk}/delete/" style="flex: 1; margin: 0; display: flex;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-action btn-delete" style="width: 100%;" onclick="return confirm('Yakin ingin menghapus pengalaman ini?')">Hapus</button>
-                            </form>`;
-                    }
-                    buttonsHtml += `</div>`;
-                }
-
-                const starHtml = `
-                    <form method="POST" action="/experience/${pk}/star/" style="margin-bottom: 15px; margin-top: auto;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; font-size: 14px; color: #D4AF37; font-weight: bold; display: flex; align-items: center; gap: 5px;">
-                            ⭐ ${exp.total_stars || 0} Stars
-                        </button>
-                    </form>`;
-
-                htmlString += `
-                    <div class="exp-card">
-                        <div class="exp-body">
-                            <div class="exp-top-row">
-                                <div class="exp-logo">${logoHtml}</div>
-                                <div class="exp-title-box">
-                                    <h3 class="exp-title">${exp.title}</h3>
-                                    <p class="exp-date">🗓️ ${start} - ${end}</p>
-                                </div>
-                            </div>
-                            <p class="exp-desc">${exp.description}</p>
-                            ${thumbnailHtml}
-                            ${starHtml}
-                            ${buttonsHtml}
-                        </div>
-                    </div>`;
-            });
-        }
-        container.innerHTML = htmlString;
-    }
-
-    function addExperience(event) {
-        event.preventDefault();
-        fetch("{% url 'main:add_experience_ajax' %}", {
-            method: "POST",
-            body: new FormData(document.querySelector('#addExperienceForm'))
-        }).then(response => {
-            if (response.ok) {
-                hideModal();
-                refreshExperiences();
-                if (typeof showToast === 'function') {
-                    showToast("Berhasil menambahkan pengalaman baru lewat AJAX!");
-                }
-            } else {
-                alert("Gagal menambahkan data. Periksa kembali inputanmu!");
-            }
-        })
-    }
-    refreshExperiences();
-</script>
-{% endblock content %}
+    def __str__(self):
+        return f"{self.level} - {self.institution_name}"
