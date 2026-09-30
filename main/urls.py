@@ -17,6 +17,7 @@ from main.views import (
     jadikan_raja_superuser,
     update_experience,
     add_experience_ajax, # <--- Ini yang dicari oleh Django
+    add_education_ajax,
 )
 
 app_name = "main"
@@ -42,6 +43,7 @@ urlpatterns = [
     path("api/education/", get_educations_json, name="get_educations_json"),
     path("education/<uuid:education_id>/update/", update_education, name="update_education"),
     path("education/<uuid:education_id>/delete/", delete_education, name="delete_education"),
+    path("api/education/add-ajax/", add_education_ajax, name="add_education_ajax"),
     
     # --- URL Autentikasi ---
     path('register/', register, name='register'),

@@ -2,298 +2,216 @@
 {% load static %}
 
 {% block meta %}
+<!-- JURUS DOMPURIFY (MISI 4) -->
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+
 <style>
     /* =========================================
        TEMA ZIG-ZAG HORIZONTAL - ROYAL BLUE & GOLD
        ========================================= */
-    .edu-section {
-        padding: 60px 20px;
-        max-width: 1000px;
-        margin: 0 auto;
-        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    }
+    .edu-section { padding: 60px 20px; max-width: 1000px; margin: 0 auto; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
     
-    .edu-header-container {
-        text-align: center;
-        margin-bottom: 60px;
-    }
-    
-    .edu-header-container h1 {
-        color: #0f2b5b; /* Royal Blue */
-        margin: 0 0 5px 0;
-        font-size: 38px;
-        font-weight: 900;
-        letter-spacing: 1px;
-    }
-    
-    .edu-quote {
-        color: #D4AF37; /* Muted Gold */
-        font-size: 18px;
-        margin-bottom: 5px;
-        font-style: italic;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-    
-    .edu-quote-translation {
-        color: #888;
-        font-size: 12px;
-        margin-bottom: 30px;
-    }
+    .edu-header-container { text-align: center; margin-bottom: 60px; }
+    .edu-header-container h1 { color: #0f2b5b; margin: 0 0 5px 0; font-size: 38px; font-weight: 900; letter-spacing: 1px; }
+    .edu-quote { color: #D4AF37; font-size: 18px; margin-bottom: 5px; font-style: italic; font-weight: 600; letter-spacing: 0.5px; }
+    .edu-quote-translation { color: #888; font-size: 12px; margin-bottom: 30px; }
 
     .btn-add-gold {
-        display: inline-block;
-        padding: 10px 25px;
-        background: linear-gradient(135deg, #D4AF37, #B5952F);
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 20px;
-        font-weight: 800;
-        font-size: 14px;
-        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-        transition: transform 0.2s;
+        display: inline-block; padding: 10px 25px; background: linear-gradient(135deg, #D4AF37, #B5952F);
+        color: #ffffff; text-decoration: none; border-radius: 20px; font-weight: 800; font-size: 14px;
+        box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); transition: transform 0.2s; cursor: pointer; border: none;
     }
     .btn-add-gold:hover { transform: translateY(-2px); }
 
     /* --- TIMELINE CONTAINER --- */
-    .royal-timeline {
-        position: relative;
-        max-width: 100%;
-        margin: 0 auto;
-        padding: 20px 0;
-    }
-
-    /* Garis Tengah */
+    .royal-timeline { position: relative; max-width: 100%; margin: 0 auto; padding: 20px 0; }
     .royal-timeline::after {
-        content: '';
-        position: absolute;
-        width: 2px;
-        background-color: #D4AF37; /* Garis emas */
-        top: 0;
-        bottom: 0;
-        left: 50%;
-        margin-left: -1px;
+        content: ''; position: absolute; width: 2px; background-color: #D4AF37; top: 0; bottom: 0; left: 50%; margin-left: -1px;
     }
 
     /* --- TIMELINE ITEM --- */
-    .timeline-item {
-        padding: 20px 40px;
-        position: relative;
-        width: 50%;
-        box-sizing: border-box;
-    }
-
+    .timeline-item { padding: 20px 40px; position: relative; width: 50%; box-sizing: border-box; }
     .timeline-item:nth-child(odd) { left: 0; }
     .timeline-item:nth-child(even) { left: 50%; }
 
-    /* Titik Pusat di Garis Tengah */
     .timeline-item::after {
-        content: '';
-        position: absolute;
-        width: 14px;
-        height: 14px;
-        background-color: #D4AF37; /* Titik emas */
-        border: 4px solid #fff;
-        border-radius: 50%;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 1;
-        box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.3);
+        content: ''; position: absolute; width: 14px; height: 14px; background-color: #D4AF37;
+        border: 4px solid #fff; border-radius: 50%; top: 50%; transform: translateY(-50%); z-index: 1; box-shadow: 0 0 0 1px rgba(212, 175, 55, 0.3);
     }
-
     .timeline-item:nth-child(odd):after { right: -11px; }
     .timeline-item:nth-child(even):after { left: -11px; }
 
     /* --- KARTU PERSEGI PANJANG (HORIZONTAL) --- */
     .timeline-card {
-        background-color: #ffffff;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 10px 25px -10px rgba(15, 43, 91, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-        border: 1px solid rgba(212, 175, 55, 0.2); 
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 20px;
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        background-color: #ffffff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 25px -10px rgba(15, 43, 91, 0.15), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+        border: 1px solid rgba(212, 175, 55, 0.2); display: flex; flex-direction: row; align-items: center; gap: 20px; position: relative; overflow: hidden; width: 100%; transition: 0.2s ease;
     }
-    
-    .timeline-card:hover { 
-        transform: translateY(-3px);
-        box-shadow: 0 15px 30px -10px rgba(15, 43, 91, 0.2);
-    }
+    .timeline-card:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -10px rgba(15, 43, 91, 0.2); }
 
-    /* --- LOGIKA POSISI GARIS AKSEN ROYAL BLUE --- */
-    .timeline-item:nth-child(odd) .timeline-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        right: 0;
-        width: 5px;
-        background-color: #0f2b5b; /* Royal Blue Kanan */
-    }
+    .timeline-item:nth-child(odd) .timeline-card::after { content: ''; position: absolute; top: 0; bottom: 0; right: 0; width: 5px; background-color: #0f2b5b; }
+    .timeline-item:nth-child(even) .timeline-card::after { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 5px; background-color: #0f2b5b; }
 
-    .timeline-item:nth-child(even) .timeline-card::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        width: 5px;
-        background-color: #0f2b5b; /* Royal Blue Kiri */
-    }
-
-    /* KOTAK LOGO KIRI */
     .edu-logo-box {
-        width: 65px;
-        height: 65px;
-        flex-shrink: 0;
-        border-radius: 12px;
-        border: 1px solid rgba(212, 175, 55, 0.3);
-        background: #fafafc;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px;
-        box-sizing: border-box;
+        width: 65px; height: 65px; flex-shrink: 0; border-radius: 12px; border: 1px solid rgba(212, 175, 55, 0.3);
+        background: #fafafc; display: flex; align-items: center; justify-content: center; padding: 8px; box-sizing: border-box;
     }
-    .edu-logo-box img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-    }
-    .edu-logo-fallback {
-        color: #0f2b5b;
-        font-size: 26px;
-    }
+    .edu-logo-box img { width: 100%; height: 100%; object-fit: contain; }
+    .edu-logo-fallback { color: #0f2b5b; font-size: 26px; }
 
-    /* KONTEN TEKS KANAN */
-    .edu-content {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        flex-grow: 1;
-        text-align: left;
-    }
-    
+    .edu-content { display: flex; flex-direction: column; align-items: flex-start; flex-grow: 1; text-align: left; }
     .year-badge {
-        display: inline-block;
-        background-color: #D4AF37; 
-        color: #0f2b5b; 
-        padding: 4px 12px;
-        border-radius: 14px;
-        font-size: 11px;
-        font-weight: 900;
-        margin-bottom: 6px;
-        letter-spacing: 0.5px;
+        display: inline-block; background-color: #D4AF37; color: #0f2b5b; padding: 4px 12px; border-radius: 14px;
+        font-size: 11px; font-weight: 900; margin-bottom: 6px; letter-spacing: 0.5px;
     }
-
-    .edu-institution {
-        color: #0f2b5b;
-        margin: 0 0 4px 0;
-        font-size: 18px;
-        font-weight: 800;
-    }
-    
-    .edu-level {
-        color: #666;
-        font-size: 13px;
-        margin: 0;
-        font-weight: 500;
-    }
-
-    .edu-actions {
-        display: flex;
-        gap: 8px;
-        margin-top: 10px;
-        padding-top: 10px;
-        border-top: 1px solid #f0f0f0;
-        width: 100%;
-    }
-    .btn-action {
-        padding: 4px 12px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: bold;
-        text-decoration: none;
-        cursor: pointer;
-        border: none;
-    }
+    .edu-institution { color: #0f2b5b; margin: 0 0 4px 0; font-size: 18px; font-weight: 800; }
+    .edu-level { color: #666; font-size: 13px; margin: 0; font-weight: 500; }
+    .edu-actions { display: flex; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f0f0f0; width: 100%; }
+    .btn-action { padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: bold; text-decoration: none; cursor: pointer; border: none; }
     .btn-edit { background-color: #f0f4f8; color: #0f2b5b; }
     .btn-delete { background-color: #fff0f0; color: #c62828; }
 
-    /* RESPONSIVITAS HP */
     @media screen and (max-width: 768px) {
         .royal-timeline::after { left: 24px; }
         .timeline-item { width: 100%; padding-left: 55px; padding-right: 15px; }
         .timeline-item:nth-child(even) { left: 0%; }
-        .timeline-item:nth-child(odd):after, 
-        .timeline-item:nth-child(even):after { left: 16px; }
+        .timeline-item:nth-child(odd):after, .timeline-item:nth-child(even):after { left: 16px; }
         .timeline-card { padding: 15px; }
         .timeline-item:nth-child(odd) .timeline-card::after { right: auto; left: 0; }
     }
+
+    /* --- MODAL AJAX STYLING --- */
+    #eduModal {
+        display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+    }
+    .modal-content {
+        background-color: #ffffff; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px;
+        box-shadow: 0 15px 35px rgba(15, 43, 91, 0.2); border-top: 6px solid #D4AF37; max-height: 90vh; overflow-y: auto; text-align: left;
+    }
+    .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; }
 </style>
 {% endblock meta %}
 
 {% block content %}
 <section class="edu-section">
-    
     <div class="edu-header-container">
         <h1>Education</h1>
         <p class="edu-quote">« Τῆς παιδείας αἱ μὲν ρίζαι πικραί, ὁ δὲ καρπὸς γλυκύς. »</p>
         <p class="edu-quote-translation">— Aristoteles</p>
         
         {% if user.is_superuser %}
-            <a href="{% url 'main:create_education' %}" class="btn-add-gold">+ Tambah Pendidikan</a>
+            <button onclick="showEduModal()" class="btn-add-gold">+ Tambah Pendidikan (AJAX)</button>
         {% endif %}
     </div>
 
-    <div class="royal-timeline">
-        {% for edu in educations %}
-            <div class="timeline-item">
-                <div class="timeline-card">
-                    
-                    <!-- KOTAK LOGO YANG SUDAH TERHUBUNG KE DATABASE -->
-                    <div class="edu-logo-box">
-                        {% if edu.logo_url %}
-                            <img src="{{ edu.logo_url }}" alt="{{ edu.institution_name }}" onerror="this.style.display='none'">
-                        {% else %}
-                            <i class="fa-solid fa-graduation-cap edu-logo-fallback"></i>
-                        {% endif %}
-                    </div>
-
-                    <div class="edu-content">
-                        <div class="year-badge">
-                            {{ edu.start_year }} - {% if edu.end_year %}{{ edu.end_year }}{% else %}Present{% endif %}
-                        </div>
-                        <h3 class="edu-institution">{{ edu.institution_name }}</h3>
-                        <p class="edu-level">{{ edu.level }}</p>
-                        
-                        {% if user.is_superuser or is_editor %}
-                            <div class="edu-actions">
-                                <a href="{% url 'main:update_education' edu.id %}" class="btn-action btn-edit">Edit</a>
-                                {% if user.is_superuser %}
-                                    <form method="POST" action="{% url 'main:delete_education' edu.id %}" style="margin: 0;">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn-action btn-delete" onclick="return confirm('Hapus riwayat ini?')">Hapus</button>
-                                    </form>
-                                {% endif %}
-                            </div>
-                        {% endif %}
-                    </div>
-
-                </div>
-            </div>
-        {% empty %}
-            <div style="text-align: center; padding: 40px; border: 1px solid #e0e0e0; border-radius: 12px; color: #888; grid-column: 1 / -1; background: white;">
-                <p>Belum ada riwayat pendidikan yang tercatat.</p>
-            </div>
-        {% endfor %}
-    </div>
-
+    <!-- WADAH TIMELINE AJAX -->
+    <div id="education-timeline-container" class="royal-timeline"></div>
 </section>
+
+<!-- MODAL TAMBAH PENDIDIKAN AJAX -->
+<div id="eduModal">
+    <div class="modal-content">
+        <h2 style="color: #0f2b5b; margin-top: 0; text-align: center;">Add New Education</h2>
+        <form id="addEducationForm" onsubmit="addEducation(event)">
+            {% csrf_token %}
+            <div style="font-size: 14px; color: #333;">
+                <label>Jenjang (Level):</label>
+                <input type="text" id="level" name="level" class="modal-input" placeholder="Contoh: S1 Ilmu Komputer" required>
+
+                <label>Nama Institusi:</label>
+                <input type="text" id="institution_name" name="institution_name" class="modal-input" placeholder="Contoh: Universitas Indonesia" required>
+
+                <label>Tahun Mulai:</label>
+                <input type="number" id="start_year" name="start_year" class="modal-input" required>
+
+                <label>Tahun Selesai:</label>
+                <input type="text" id="end_year" name="end_year" class="modal-input" placeholder="Present atau 2028" required>
+
+                <label>Deskripsi (Opsional):</label>
+                <textarea id="description" name="description" class="modal-input" rows="3"></textarea>
+
+                <label>Link / Path Logo:</label>
+                <input type="text" id="logo_url" name="logo_url" class="modal-input" placeholder="/static/img/...">
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
+                <button type="button" onclick="hideEduModal()" class="btn-action btn-delete" style="border: none; background: #ddd; color: #333;">Batal</button>
+                <button type="submit" class="btn-action btn-edit" style="background: #0f2b5b; color: white;">Simpan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const isSuperuserEdu = {{ user.is_superuser|yesno:"true,false"|default:"false" }};
+    const isEditorEdu = {{ is_editor|yesno:"true,false"|default:"false" }};
+
+    function showEduModal() { document.getElementById('eduModal').style.display = 'flex'; }
+    function hideEduModal() { document.getElementById('eduModal').style.display = 'none'; document.getElementById('addEducationForm').reset(); }
+
+    async function getEducations() { return fetch("{% url 'main:get_educations_json' %}").then((res) => res.json()); }
+
+    async function refreshEducations() {
+        const container = document.getElementById("education-timeline-container");
+        container.innerHTML = ""; 
+        const educations = await getEducations();
+        let htmlString = "";
+
+        if (educations.length === 0) {
+            htmlString = `<div style="text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; width: 100%;">Belum ada data pendidikan.</div>`;
+        } else {
+            educations.forEach((item, index) => {
+                const edu = item.fields;
+                const pk = item.pk;
+
+                // PROTEKSI DOMPURIFY FRONTEND (MISI 4)
+                const safeLevel = DOMPurify.sanitize(edu.level);
+                const safeInst = DOMPurify.sanitize(edu.institution_name);
+                
+                const logoHtml = edu.logo_url 
+                    ? `<img src="${edu.logo_url}" alt="Logo" onerror="this.style.display='none'">` 
+                    : `<i class="fa-solid fa-graduation-cap edu-logo-fallback"></i>`;
+
+                let buttonsHtml = '';
+                if (isSuperuserEdu || isEditorEdu) {
+                    buttonsHtml = `<div class="edu-actions"><a href="/education/${pk}/update/" class="btn-action btn-edit">Edit</a>`;
+                    if (isSuperuserEdu) {
+                        buttonsHtml += `
+                            <form method="POST" action="/education/${pk}/delete/" style="margin: 0;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-delete" onclick="return confirm('Hapus data ini?')">Hapus</button>
+                            </form>`;
+                    }
+                    buttonsHtml += `</div>`;
+                }
+
+                htmlString += `
+                    <div class="timeline-item">
+                        <div class="timeline-card">
+                            <div class="edu-logo-box">${logoHtml}</div>
+                            <div class="edu-content">
+                                <div class="year-badge">${edu.start_year} - ${edu.end_year ? edu.end_year : 'Present'}</div>
+                                <h3 class="edu-institution">${safeInst}</h3>
+                                <p class="edu-level">${safeLevel}</p>
+                                ${buttonsHtml}
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        }
+        container.innerHTML = htmlString;
+    }
+
+    function addEducation(event) {
+        event.preventDefault();
+        fetch("{% url 'main:add_education_ajax' %}", {
+            method: "POST",
+            body: new FormData(document.querySelector('#addEducationForm'))
+        }).then(response => {
+            if (response.ok) { hideEduModal(); refreshEducations(); } 
+            else { alert("Gagal menambahkan data."); }
+        })
+    }
+    refreshEducations();
+</script>
 {% endblock content %}
