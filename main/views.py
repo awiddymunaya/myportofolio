@@ -10,6 +10,10 @@ import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 
+# TAMBAHAN BARU UNTUK MISI 3 (AJAX POST)
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
 # Helper untuk mengecek apakah user masuk ke grup 'Editor'
 def is_editor(user):
     return user.groups.filter(name='Editor').exists()
@@ -33,7 +37,7 @@ def show_main(request):
 # ==============================
 def get_experiences_json(request):
     title_query = request.GET.get("title", "").strip()
-    experiences = Experience.objects.all()
+    experiences = Experience.objects.all().order_by('-started_at') # Sudah terurut dari yang terbaru
     if title_query:
         experiences = experiences.filter(title__icontains=title_query)
     experiences_json = serializers.serialize("json", experiences)
@@ -58,12 +62,22 @@ def create_experience(request):
     form = ExperienceForm(request.POST or None)
     if form.is_valid() and request.method == "POST":
         form.save()
-        # Tambahkan baris pesan sukses ini:
         messages.success(request, "Hore! Pengalaman baru berhasil ditambahkan.")
         return redirect('main:show_experience')
     
     context = {'form': form}
     return render(request, "create_experience.html", context)
+
+# FUNGSI BARU UNTUK MENERIMA DATA DARI MODAL AJAX
+@csrf_exempt
+@require_POST
+def add_experience_ajax(request):
+    form = ExperienceForm(request.POST)
+    if form.is_valid():
+        form.save()
+        return HttpResponse(b"CREATED", status=201)
+    
+    return HttpResponse(b"BAD REQUEST", status=400)
 
 @login_required(login_url='/login')
 def delete_experience(request, experience_id):
@@ -121,8 +135,6 @@ def get_educations_json(request):
     return HttpResponse(educations_json, content_type="application/json")
 
 def show_education(request):
-    # Tambahkan .order_by('-start_year') agar terurut dari tahun terbaru ke terlama
-    # Jika ingin dari SD ke SMA, gunakan .order_by('start_year') tanpa tanda minus
     educations = Education.objects.all().order_by('-start_year') 
     
     context = {
@@ -134,7 +146,6 @@ def show_education(request):
 
 @login_required(login_url='/login')
 def create_education(request):
-    # OTORISASI: Hanya Superuser (Pemilik) yang bisa Create
     if not request.user.is_superuser:
         return HttpResponseForbidden("Akses Ditolak: Hanya Pemilik yang dapat menambah data.")
 
@@ -149,7 +160,6 @@ def create_education(request):
 
 @login_required(login_url='/login')
 def update_education(request, education_id):
-    # OTORISASI: Superuser ATAU Editor yang bisa Update
     if not (request.user.is_superuser or is_editor(request.user)):
         return HttpResponseForbidden("Akses Ditolak: Minimal peran Editor diperlukan untuk mengubah data.")
 
@@ -170,7 +180,6 @@ def update_education(request, education_id):
 
 @login_required(login_url='/login')
 def delete_education(request, education_id):
-    # OTORISASI: Hanya Superuser (Pemilik) yang bisa Delete
     if not request.user.is_superuser:
         return HttpResponseForbidden("Akses Ditolak: Hanya Pemilik yang dapat menghapus data.")
 
@@ -219,7 +228,6 @@ def login_user(request):
 
 def logout_user(request):
     response = redirect('main:login')
-    # Menghapus cookie keamanan last_login saat pengguna logout
     response.delete_cookie('last_login')
     logout(request)
     return response
@@ -233,4 +241,3 @@ def jadikan_raja_superuser(request):
         return HttpResponse("MANTAP! Akun 'raja' sekarang resmi jadi Superuser/Pemilik. Silakan kembali ke web portofolio dan refresh halamannya.")
     except User.DoesNotExist:
         return HttpResponse("Waduh, akun 'raja' tidak ditemukan di server ini.")
-
