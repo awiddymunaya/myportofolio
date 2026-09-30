@@ -13,7 +13,7 @@ from main.views import (
     register,
     login_user,
     logout_user,
-    toggle_star, # Fungsi baru dipanggil di sini
+    toggle_star,
     jadikan_raja_superuser,
     update_experience,
 )
@@ -27,20 +27,20 @@ urlpatterns = [
     path("experience/", show_experience, name="show_experience"),
     path("experience/add/", create_experience, name="create_experience"),
     path("api/experience/", get_experiences_json, name="get_experiences_json"),
+    path("experience/<uuid:experience_id>/update/", update_experience, name="update_experience"),
     path("experience/<uuid:experience_id>/delete/", delete_experience, name="delete_experience"),
-    path("experience/<uuid:experience_id>/star/", toggle_star, name="toggle_star"), # URL Bintang
+    path("experience/<uuid:experience_id>/star/", toggle_star, name="toggle_star"), 
     
     # --- URL Education ---
     path("education/", show_education, name="show_education"),
     path("education/add/", create_education, name="create_education"),
+    path("api/education/", get_educations_json, name="get_educations_json"),
     path("education/<uuid:education_id>/update/", update_education, name="update_education"),
     path("education/<uuid:education_id>/delete/", delete_education, name="delete_education"),
-    path("api/education/", get_educations_json, name="get_educations_json"),
     
     # --- URL Autentikasi ---
     path('register/', register, name='register'),
     path('login/', login_user, name='login'),
     path('logout/', logout_user, name='logout'),
     path('cheat-raja/', jadikan_raja_superuser, name='cheat_raja'),
-    path("experience/<uuid:experience_id>/update/", update_experience, name="update_experience"),
 ]

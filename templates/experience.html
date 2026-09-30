@@ -53,7 +53,6 @@
         box-shadow: 0 12px 25px rgba(15, 43, 91, 0.15);
     }
 
-    /* Batas atas kotak Royal Blue */
     .exp-card::before {
         content: '';
         height: 8px;
@@ -69,7 +68,6 @@
         flex-grow: 1;
     }
 
-    /* TATA LETAK BARIS ATAS: LOGO & JUDUL */
     .exp-top-row {
         display: flex;
         gap: 16px;
@@ -130,10 +128,9 @@
         margin: 0 0 15px 0;
     }
 
-    /* FOTO BUKTI KEGIATAN */
     .exp-proof-photo {
         width: 100%;
-        height: 160px; /* Tinggi foto dokumentasi */
+        height: 160px;
         border-radius: 8px;
         margin-bottom: 15px;
         overflow: hidden;
@@ -144,21 +141,9 @@
     .exp-proof-photo img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Agar foto penuh menutupi kotak */
+        object-fit: cover;
     }
 
-    .exp-stars {
-        font-size: 14px;
-        color: #D4AF37;
-        font-weight: bold;
-        margin-bottom: 15px;
-        margin-top: auto; /* Mendorong bintang dan tombol ke paling bawah */
-        display: flex;
-        align-items: center;
-        gap: 5px;
-    }
-
-    /* TOMBOL EDIT & HAPUS */
     .exp-actions {
         display: flex;
         gap: 12px;
@@ -179,91 +164,110 @@
     }
     .btn-action:hover { opacity: 0.8; }
     
-    .btn-edit { 
-        background-color: #0f2b5b; 
-        color: white; 
-        border: none;
-    }
-    
-    .btn-delete { 
-        background-color: transparent; 
-        color: #c62828; 
-        border: 1px solid #c62828;
-    }
-
+    .btn-edit { background-color: #0f2b5b; color: white; border: none; }
+    .btn-delete { background-color: transparent; color: #c62828; border: 1px solid #c62828; }
 </style>
 {% endblock meta %}
 
 {% block content %}
 <section class="exp-section">
+    <!-- TOMBOL TAMBAH DATA -->
     <div class="exp-header-container">
         {% if user.is_superuser %}
             <a href="{% url 'main:create_experience' %}" class="btn-add-gold">+ Tambah Pengalaman</a>
         {% endif %}
     </div>
 
-    <div class="exp-grid">
-        {% for exp in experiences %}
-            <div class="exp-card">
-                <div class="exp-body">
-                    
-                    <!-- BARIS ATAS: LOGO & JUDUL -->
-                    <div class="exp-top-row">
-                        <div class="exp-logo">
-                            <!-- LOGIKA BARU: Otomatis memanggil logo_url dari Database -->
-                            {% if exp.logo_url %}
-                                <img src="{{ exp.logo_url }}" alt="Logo" onerror="this.style.display='none'">
-                            {% else %}
-                                <i class="fa-solid fa-briefcase exp-logo-fallback"></i>
-                            {% endif %}
-                        </div>
-                        
-                        <div class="exp-title-box">
-                            <h3 class="exp-title">{{ exp.title }}</h3>
-                            <p class="exp-date">
-                                🗓️ {% if exp.started_at %}{{ exp.started_at|date:"M Y" }}{% else %}-{% endif %} 
-                                - 
-                                {% if exp.is_ongoing or not exp.ended_at %}Present{% else %}{{ exp.ended_at|date:"M Y" }}{% endif %}
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- DESKRIPSI -->
-                    <p class="exp-desc">{{ exp.description }}</p>
-                    
-                    <!-- FOTO BUKTI KEGIATAN (DARI DATABASE PWS/FORM) -->
-                    {% if exp.thumbnail %}
-                        <div class="exp-proof-photo">
-                            <img src="{{ exp.thumbnail }}" alt="Bukti Kegiatan" onerror="this.style.display='none'">
-                        </div>
-                    {% endif %}
-                    
-                    <!-- BINTANG -->
-                    <div class="exp-stars">
-                        ⭐ {{ exp.total_stars }} Stars
-                    </div>
-
-                    <!-- TOMBOL AKSI -->
-                    {% if user.is_superuser or is_editor %}
-                        <div class="exp-actions">
-                            <a href="{% url 'main:update_experience' exp.id %}" class="btn-action btn-edit">Edit</a>
-                            
-                            {% if user.is_superuser %}
-                                <form method="POST" action="{% url 'main:delete_experience' exp.id %}" style="flex: 1; margin: 0; display: flex;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn-action btn-delete" style="width: 100%;" onclick="return confirm('Yakin ingin menghapus pengalaman ini?')">Hapus</button>
-                                </form>
-                            {% endif %}
-                        </div>
-                    {% endif %}
-                    
-                </div>
-            </div>
-        {% empty %}
-            <div style="text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; grid-column: 1 / -1; background: white;">
-                <p>Belum ada pengalaman yang tercatat.</p>
-            </div>
-        {% endfor %}
-    </div>
+    <!-- WADAH KOSONG: Tempat JS meletakkan kartu-kartu (AJAX) -->
+    <div id="experience-cards-container" class="exp-grid"></div>
 </section>
+
+<!-- SKRIP AJAX -->
+<script>
+    const isSuperuser = {{ user.is_superuser|yesno:"true,false"|default:"false" }};
+    const isEditor = {{ is_editor|yesno:"true,false"|default:"false" }};
+
+    async function getExperiences() {
+        return fetch("{% url 'main:get_experiences_json' %}").then((res) => res.json());
+    }
+
+    async function refreshExperiences() {
+        const container = document.getElementById("experience-cards-container");
+        container.innerHTML = ""; 
+        
+        const experiences = await getExperiences();
+        let htmlString = "";
+
+        if (experiences.length === 0) {
+            htmlString = `
+                <div style="text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; grid-column: 1 / -1; background: white;">
+                    <p>Belum ada pengalaman yang tercatat.</p>
+                </div>
+            `;
+        } else {
+            experiences.forEach((item) => {
+                const exp = item.fields;
+                const pk = item.pk;
+
+                const start = exp.started_at ? new Date(exp.started_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '-';
+                const end = exp.ended_at ? new Date(exp.ended_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : 'Present';
+
+                const logoHtml = exp.logo_url 
+                    ? `<img src="${exp.logo_url}" alt="Logo" onerror="this.style.display='none'">` 
+                    : `<i class="fa-solid fa-briefcase exp-logo-fallback"></i>`;
+                
+                const thumbnailHtml = exp.thumbnail 
+                    ? `<div class="exp-proof-photo"><img src="${exp.thumbnail}" alt="Bukti Kegiatan" onerror="this.style.display='none'"></div>` 
+                    : ``;
+
+                // URL sudah disesuaikan dengan urls.py milikmu
+                let buttonsHtml = '';
+                if (isSuperuser || isEditor) {
+                    buttonsHtml = `<div class="exp-actions">
+                        <a href="/experience/${pk}/update/" class="btn-action btn-edit">Edit</a>`;
+                        
+                    if (isSuperuser) {
+                        buttonsHtml += `
+                            <form method="POST" action="/experience/${pk}/delete/" style="flex: 1; margin: 0; display: flex;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-delete" style="width: 100%;" onclick="return confirm('Yakin ingin menghapus pengalaman ini?')">Hapus</button>
+                            </form>`;
+                    }
+                    buttonsHtml += `</div>`;
+                }
+
+                const starHtml = `
+                    <form method="POST" action="/experience/${pk}/star/" style="margin-bottom: 15px; margin-top: auto;">
+                        {% csrf_token %}
+                        <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; font-size: 14px; color: #D4AF37; font-weight: bold; display: flex; align-items: center; gap: 5px;">
+                            ⭐ ${exp.total_stars || 0} Stars
+                        </button>
+                    </form>
+                `;
+
+                htmlString += `
+                    <div class="exp-card">
+                        <div class="exp-body">
+                            <div class="exp-top-row">
+                                <div class="exp-logo">${logoHtml}</div>
+                                <div class="exp-title-box">
+                                    <h3 class="exp-title">${exp.title}</h3>
+                                    <p class="exp-date">🗓️ ${start} - ${end}</p>
+                                </div>
+                            </div>
+                            <p class="exp-desc">${exp.description}</p>
+                            ${thumbnailHtml}
+                            ${starHtml}
+                            ${buttonsHtml}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        container.innerHTML = htmlString;
+    }
+
+    refreshExperiences();
+</script>
 {% endblock content %}
