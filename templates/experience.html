@@ -2,6 +2,9 @@
 {% load static %}
 
 {% block meta %}
+<!-- TAMBAHKAN BARIS INI UNTUK MISI 4 (DOMPURIFY) -->
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
+
 <style>
     .exp-section {
         padding: 40px 20px;
@@ -168,6 +171,11 @@
                     ? `<div class="exp-proof-photo"><img src="${exp.thumbnail}" alt="Bukti Kegiatan" onerror="this.style.display='none'"></div>` 
                     : ``;
 
+                // --- MISI 4: PEMBERSIHAN DENGAN DOMPURIFY ---
+                const safeTitle = DOMPurify.sanitize(exp.title);
+                const safeDescription = DOMPurify.sanitize(exp.description);
+                // --------------------------------------------
+
                 let buttonsHtml = '';
                 if (isSuperuser || isEditor) {
                     buttonsHtml = `<div class="exp-actions">
@@ -196,11 +204,11 @@
                             <div class="exp-top-row">
                                 <div class="exp-logo">${logoHtml}</div>
                                 <div class="exp-title-box">
-                                    <h3 class="exp-title">${exp.title}</h3>
+                                    <h3 class="exp-title">${safeTitle}</h3>
                                     <p class="exp-date">🗓️ ${start} - ${end}</p>
                                 </div>
                             </div>
-                            <p class="exp-desc">${exp.description}</p>
+                            <p class="exp-desc">${safeDescription}</p>
                             ${thumbnailHtml}
                             ${starHtml}
                             ${buttonsHtml}
