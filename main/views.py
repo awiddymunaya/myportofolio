@@ -9,6 +9,7 @@ from django.contrib.auth import authenticate, login, logout
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.utils.html import strip_tags
 
 # TAMBAHAN BARU UNTUK MISI 3 (AJAX POST)
 from django.views.decorators.csrf import csrf_exempt
@@ -74,7 +75,11 @@ def create_experience(request):
 def add_experience_ajax(request):
     form = ExperienceForm(request.POST)
     if form.is_valid():
-        form.save()
+        experience = form.save(commit=False)
+        # Misi 4: Membersihkan tag HTML berbahaya untuk mencegah XSS
+        experience.title = strip_tags(experience.title)
+        experience.description = strip_tags(experience.description)
+        experience.save()
         return HttpResponse(b"CREATED", status=201)
     
     return HttpResponse(b"BAD REQUEST", status=400)
