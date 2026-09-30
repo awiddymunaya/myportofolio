@@ -195,6 +195,22 @@ def delete_education(request, education_id):
         return redirect("main:show_education")
     return redirect("main:show_education")
 
+@csrf_exempt
+@require_POST
+def add_education_ajax(request):
+    form = EducationForm(request.POST)
+    if form.is_valid():
+        education = form.save(commit=False)
+        # Misi 4: Membersihkan tag HTML berbahaya untuk mencegah XSS pada Education
+        education.level = strip_tags(education.level)
+        education.institution_name = strip_tags(education.institution_name)
+        if education.description:
+            education.description = strip_tags(education.description)
+        education.save()
+        return HttpResponse(b"CREATED", status=201)
+    
+    return HttpResponse(b"BAD REQUEST", status=400)
+
 
 # ==============================
 # VIEW AUTENTIKASI
