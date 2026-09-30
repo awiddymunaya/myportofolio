@@ -55,16 +55,13 @@ def show_experience(request):
 
 @login_required(login_url='/login')
 def create_experience(request):
-    # OTORISASI: Hanya Superuser (Pemilik) yang bisa Create
-    if not request.user.is_superuser:
-        return HttpResponseForbidden("Akses Ditolak: Hanya Pemilik yang dapat menambah data.")
-
     form = ExperienceForm(request.POST or None)
-    if request.method == "POST" and form.is_valid():
+    if form.is_valid() and request.method == "POST":
         form.save()
-        messages.success(request, "Pengalaman berhasil ditambahkan!")
+        # Tambahkan baris pesan sukses ini:
+        messages.success(request, "Hore! Pengalaman baru berhasil ditambahkan.")
         return redirect('main:show_experience')
-            
+    
     context = {'form': form}
     return render(request, "create_experience.html", context)
 
@@ -236,3 +233,4 @@ def jadikan_raja_superuser(request):
         return HttpResponse("MANTAP! Akun 'raja' sekarang resmi jadi Superuser/Pemilik. Silakan kembali ke web portofolio dan refresh halamannya.")
     except User.DoesNotExist:
         return HttpResponse("Waduh, akun 'raja' tidak ditemukan di server ini.")
+

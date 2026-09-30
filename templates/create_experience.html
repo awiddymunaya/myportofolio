@@ -9,15 +9,6 @@
         <!-- Kita batasi lebarnya (max-width: 600px) agar form tidak terlalu melebar ke samping -->
         <div class="container" style="max-width: 600px; margin: 0 auto;">
             <h1 style="margin-bottom: 2rem; text-align: center;">Add New Experience</h1>
-            
-            <!-- TAMBAHAN BARU: Menampilkan Pesan Error jika Kode Salah -->
-            {% if messages %}
-                <div style="background-color: #ffebee; color: #c62828; padding: 15px; border-radius: 6px; margin-bottom: 25px; text-align: center; border-left: 5px solid #c62828;">
-                    {% for message in messages %}
-                        <strong><i class="fa-solid fa-triangle-exclamation"></i> {{ message }}</strong>
-                    {% endfor %}
-                </div>
-            {% endif %}
 
             <form method="post" action="{% url 'main:create_experience' %}" class="project-form">
                 {% csrf_token %} 
