@@ -16,6 +16,7 @@ from main.views import (
     toggle_star,
     jadikan_raja_superuser,
     update_experience,
+    add_experience_ajax, # <--- Ini yang dicari oleh Django
 )
 
 app_name = "main"
@@ -27,6 +28,10 @@ urlpatterns = [
     path("experience/", show_experience, name="show_experience"),
     path("experience/add/", create_experience, name="create_experience"),
     path("api/experience/", get_experiences_json, name="get_experiences_json"),
+    
+    # <--- JALUR INI YANG BARU DITAMBAHKAN --->
+    path("api/experience/add-ajax/", add_experience_ajax, name="add_experience_ajax"),
+    
     path("experience/<uuid:experience_id>/update/", update_experience, name="update_experience"),
     path("experience/<uuid:experience_id>/delete/", delete_experience, name="delete_experience"),
     path("experience/<uuid:experience_id>/star/", toggle_star, name="toggle_star"), 
