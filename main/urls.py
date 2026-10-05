@@ -1,10 +1,11 @@
 from django.urls import path
 from main.views import (
-    show_main, 
-    show_experience, 
-    show_education, 
-    create_experience, 
-    get_experiences_json, 
+    show_main,
+    show_experience,
+    show_experience_json,
+    show_education,
+    create_experience,
+    get_experiences_json,
     delete_experience,
     create_education,
     update_education,
@@ -16,7 +17,7 @@ from main.views import (
     toggle_star,
     jadikan_raja_superuser,
     update_experience,
-    add_experience_ajax, # <--- Ini yang dicari oleh Django
+    add_experience_ajax,
     add_education_ajax,
 )
 
@@ -24,19 +25,20 @@ app_name = "main"
 
 urlpatterns = [
     path("", show_main, name="show_main"),
-    
+
     # --- URL Experience ---
     path("experience/", show_experience, name="show_experience"),
     path("experience/add/", create_experience, name="create_experience"),
-    path("api/experience/", get_experiences_json, name="get_experiences_json"),
-    
-    # <--- JALUR INI YANG BARU DITAMBAHKAN --->
+    path("api/experience/", get_experiences_json, name="get_experiences_json"),  # endpoint Tugas 3
+
+    # --- URL AJAX Experience (Tugas 5) ---
+    path("experience/json/", show_experience_json, name="show_experience_json"),
     path("api/experience/add-ajax/", add_experience_ajax, name="add_experience_ajax"),
-    
+
     path("experience/<uuid:experience_id>/update/", update_experience, name="update_experience"),
     path("experience/<uuid:experience_id>/delete/", delete_experience, name="delete_experience"),
-    path("experience/<uuid:experience_id>/star/", toggle_star, name="toggle_star"), 
-    
+    path("experience/<uuid:experience_id>/star/", toggle_star, name="toggle_star"),
+
     # --- URL Education ---
     path("education/", show_education, name="show_education"),
     path("education/add/", create_education, name="create_education"),
@@ -44,7 +46,7 @@ urlpatterns = [
     path("education/<uuid:education_id>/update/", update_education, name="update_education"),
     path("education/<uuid:education_id>/delete/", delete_education, name="delete_education"),
     path("api/education/add-ajax/", add_education_ajax, name="add_education_ajax"),
-    
+
     # --- URL Autentikasi ---
     path('register/', register, name='register'),
     path('login/', login_user, name='login'),
