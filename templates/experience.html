@@ -1,241 +1,627 @@
 {% extends 'base.html' %}
-{% load static %}
 
 {% block meta %}
-<!-- TAMBAHKAN BARIS INI UNTUK MISI 4 (DOMPURIFY) -->
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
-
 <style>
     .exp-section {
         padding: 40px 20px;
         max-width: 1200px;
         margin: 0 auto;
         font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        position: relative;
+        z-index: 1;
     }
-    .exp-header-container { text-align: center; margin-bottom: 40px; }
+    .exp-header-container { text-align: center; margin-bottom: 24px; }
     .btn-add-gold {
-        display: inline-block; padding: 10px 25px; background: linear-gradient(135deg, #D4AF37, #B5952F);
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 25px;
+        background: linear-gradient(135deg, #D4AF37, #B5952F);
         color: #ffffff; text-decoration: none; border-radius: 20px; font-weight: 800;
-        font-size: 14px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); transition: transform 0.2s; cursor: pointer; border: none;
+        font-size: 14px; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4); transition: transform 0.2s;
+        cursor: pointer; border: none; font-family: inherit;
     }
     .btn-add-gold:hover { transform: translateY(-2px); }
+    .btn-add-gold:disabled { opacity: 0.65; cursor: wait; transform: none; }
 
+    /* --- KOTAK PENCARIAN --- */
+    .exp-toolbar {
+        display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+        max-width: 720px; margin: 0 auto 10px;
+    }
+    .exp-search { position: relative; flex: 1 1 320px; }
+    .exp-search .fa-magnifying-glass {
+        position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #D4AF37;
+    }
+    .exp-search input {
+        width: 100%; box-sizing: border-box; padding: 12px 42px; border-radius: 25px;
+        border: 1px solid rgba(15, 43, 91, 0.15); background: #ffffff; font-size: 14px;
+        font-family: inherit; color: #0f2b5b; box-shadow: 0 4px 15px rgba(15, 43, 91, 0.06);
+    }
+    .exp-search input::-webkit-search-cancel-button { display: none; }
+    .exp-search input:focus,
+    .exp-toolbar select:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25); }
+    .exp-search-clear {
+        position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+        border: none; background: transparent; color: #888; cursor: pointer; padding: 6px 8px; font-size: 14px;
+    }
+    .exp-toolbar select {
+        padding: 12px 16px; border-radius: 25px; border: 1px solid rgba(15, 43, 91, 0.15);
+        background: #ffffff; color: #0f2b5b; font-weight: 600; font-size: 14px; font-family: inherit;
+        box-shadow: 0 4px 15px rgba(15, 43, 91, 0.06); cursor: pointer;
+    }
+    .exp-meta { text-align: center; color: #666; font-size: 13px; min-height: 20px; margin: 0 0 25px; }
+
+    /* --- GRID & KARTU --- */
     .exp-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 25px; }
     .exp-card {
         background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 20px rgba(15, 43, 91, 0.08);
         border: 1px solid rgba(15, 43, 91, 0.1); display: flex; flex-direction: column;
-        transition: transform 0.2s, box-shadow 0.2s; position: relative;
+        transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s; position: relative;
     }
     .exp-card:hover { transform: translateY(-5px); box-shadow: 0 12px 25px rgba(15, 43, 91, 0.15); }
     .exp-card::before { content: ''; height: 8px; background: #0f2b5b; display: block; border-bottom: 2px solid #D4AF37; }
+    .exp-card.is-removing { opacity: 0; transform: scale(0.97); }
 
     .exp-body { padding: 24px; display: flex; flex-direction: column; flex-grow: 1; }
     .exp-top-row { display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start; }
     .exp-logo {
         width: 55px; height: 55px; flex-shrink: 0; border-radius: 10px; background: #fafafc;
         border: 1px solid rgba(212, 175, 55, 0.3); display: flex; align-items: center; justify-content: center;
-        overflow: hidden; padding: 5px;
+        overflow: hidden; padding: 5px; box-sizing: border-box;
     }
     .exp-logo img { width: 100%; height: 100%; object-fit: contain; }
     .exp-logo-fallback { color: #0f2b5b; font-size: 24px; }
 
-    .exp-title-box { flex-grow: 1; }
-    .exp-title { color: #0f2b5b; font-size: 17px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.3; }
-    .exp-date { color: #666; font-size: 12px; margin: 0; display: flex; align-items: center; gap: 6px; }
-    .exp-desc { color: #555; font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0; }
+    .exp-title-box { flex-grow: 1; min-width: 0; }
+    .exp-title { color: #0f2b5b; font-size: 17px; font-weight: 800; margin: 0 0 8px 0; line-height: 1.3; overflow-wrap: anywhere; }
+    .exp-date { color: #666; font-size: 12px; margin: 0 0 8px; display: flex; align-items: center; gap: 6px; }
+    .exp-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+    .exp-badge {
+        font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px;
+        background: rgba(212, 175, 55, 0.15); color: #8a6d12;
+    }
+    .exp-badge.ongoing { background: rgba(46, 125, 50, 0.12); color: #2e7d32; }
+    .exp-desc {
+        color: #555; font-size: 13.5px; line-height: 1.6; margin: 0 0 15px 0;
+        white-space: pre-line; overflow-wrap: anywhere;
+    }
     .exp-proof-photo {
         width: 100%; height: 160px; border-radius: 8px; margin-bottom: 15px; overflow: hidden;
         border: 1px solid rgba(15, 43, 91, 0.1); background-color: #f8f9fa;
     }
     .exp-proof-photo img { width: 100%; height: 100%; object-fit: cover; }
 
+    .btn-star {
+        margin: auto 0 15px; align-self: flex-start;
+        background: none; border: 1px solid transparent; border-radius: 20px; padding: 5px 12px 5px 0;
+        cursor: pointer; font-size: 14px; color: #D4AF37; font-weight: bold; font-family: inherit;
+        display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-star.is-starred { background: rgba(212, 175, 55, 0.12); border-color: rgba(212, 175, 55, 0.5); padding-left: 12px; }
+    .btn-star:disabled { opacity: 0.6; cursor: wait; }
+
     .exp-actions { display: flex; gap: 12px; border-top: 1px solid #f0f0f0; padding-top: 16px; }
     .btn-action {
         flex: 1; padding: 8px 0; text-align: center; border-radius: 6px; font-size: 13px;
-        font-weight: 700; text-decoration: none; cursor: pointer; transition: opacity 0.2s;
+        font-weight: 700; text-decoration: none; cursor: pointer; transition: opacity 0.2s; font-family: inherit;
     }
     .btn-action:hover { opacity: 0.8; }
+    .btn-action:disabled { opacity: 0.6; cursor: wait; }
     .btn-edit { background-color: #0f2b5b; color: white; border: none; }
     .btn-delete { background-color: transparent; color: #c62828; border: 1px solid #c62828; }
+    .btn-cancel { background-color: #ddd; color: #333; border: none; }
 
-    /* STYLING MODAL POP-UP */
-    #crudModal {
-        display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+    /* --- KONDISI LOADING, KOSONG, ERROR --- */
+    .exp-skeleton {
+        height: 330px; border-radius: 12px; border: 1px solid rgba(15, 43, 91, 0.08);
+        background: linear-gradient(90deg, #f0f2f6 25%, #fafbfc 50%, #f0f2f6 75%);
+        background-size: 200% 100%; animation: exp-shimmer 1.2s infinite;
     }
+    @keyframes exp-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+    .exp-state {
+        text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px;
+        color: #0f2b5b; grid-column: 1 / -1; background: white;
+    }
+    .exp-state i { font-size: 34px; color: #D4AF37; margin-bottom: 10px; }
+    .exp-state p { margin: 0 0 15px; }
+    .exp-state.error { border-color: #c62828; }
+    .exp-state.error i { color: #c62828; }
+    .exp-state .btn-action { display: inline-block; padding: 8px 20px; flex: none; }
+
+    /* --- MODAL POP-UP --- */
+    #crudModal {
+        position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;
+    }
+    #crudModal[hidden] { display: none; }
     .modal-content {
         background-color: #ffffff; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px;
         box-shadow: 0 15px 35px rgba(15, 43, 91, 0.2); border-top: 6px solid #D4AF37;
-        max-height: 90vh; overflow-y: auto;
+        max-height: 90vh; overflow-y: auto; box-sizing: border-box;
     }
-    .modal-input {
-        width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box;
+    .modal-field { font-size: 14px; color: #333; margin-bottom: 15px; }
+    .modal-field label { display: block; font-weight: 600; }
+    .modal-field input,
+    .modal-field textarea,
+    .modal-field select {
+        width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px;
+        box-sizing: border-box; font-family: inherit; font-size: 14px;
+    }
+    .modal-field input:focus,
+    .modal-field textarea:focus,
+    .modal-field select:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+    .modal-field.has-error input,
+    .modal-field.has-error textarea,
+    .modal-field.has-error select { border-color: #c62828; }
+    .field-error { color: #c62828; font-size: 12.5px; margin: 5px 0 0; }
+    .field-error:empty { display: none; }
+    body.modal-open { overflow: hidden; }
+
+    @media (max-width: 600px) {
+        .exp-section { padding: 24px 16px; }
+        .exp-grid { grid-template-columns: 1fr; }
+        .exp-toolbar select { flex: 1 1 100%; }
+        .modal-content { padding: 22px; }
     }
 </style>
 {% endblock meta %}
 
 {% block content %}
-<section class="exp-section">
+<section
+    class="exp-section"
+    id="experience-app"
+    data-list-url="{% url 'main:show_experience_json' %}"
+    data-add-url="{% url 'main:add_experience_ajax' %}"
+    data-star-url="{% url 'main:toggle_star' '00000000-0000-0000-0000-000000000000' %}"
+    data-update-url="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}"
+    data-delete-url="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}"
+    data-login-url="{% url 'main:login' %}"
+    data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+    data-can-edit="{{ can_edit|yesno:'true,false' }}"
+    data-can-delete="{{ can_delete|yesno:'true,false' }}"
+>
+    <!-- Token CSRF untuk semua request POST lewat fetch (star, hapus, tambah) -->
+    <div hidden>{% csrf_token %}</div>
+
     <div class="exp-header-container">
-        {% if user.is_superuser %}
-            <button onclick="showModal()" class="btn-add-gold">+ Tambah Pengalaman (AJAX)</button>
+        {% if can_add %}
+            <button type="button" id="open-add-modal" class="btn-add-gold">
+                <i class="fa-solid fa-plus" aria-hidden="true"></i> Tambah Pengalaman
+            </button>
         {% endif %}
     </div>
-    <div id="experience-cards-container" class="exp-grid"></div>
+
+    <div class="exp-toolbar" role="search">
+        <div class="exp-search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input type="search" id="experience-search" placeholder="Cari nama posisi / jabatan..."
+                autocomplete="off" aria-label="Cari pengalaman berdasarkan nama posisi">
+            <button type="button" class="exp-search-clear" id="clear-search" aria-label="Hapus pencarian" hidden>
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
+        <select id="experience-category" aria-label="Filter kategori">
+            <option value="">Semua Kategori</option>
+            {% for value, label in category_choices %}
+                <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <p class="exp-meta" id="experience-meta" aria-live="polite"></p>
+
+    <!-- Kerangka kosong: kartu diisi oleh JavaScript dari endpoint JSON -->
+    <div id="experience-cards-container" class="exp-grid" aria-busy="true"></div>
 </section>
 
-<!-- STRUKTUR KOTAK POP-UP MODAL (SUDAH DISESUAIKAN DENGAN MODELS.PY) -->
-<div id="crudModal">
-    <div class="modal-content">
-        <h2 style="color: #0f2b5b; margin-top: 0; text-align: center;">Add New Experience</h2>
-        <form id="addExperienceForm" onsubmit="addExperience(event)">
+{% if can_add %}
+<!-- Modal hanya dirender untuk Pemilik, jadi skrip mengecek keberadaannya dulu -->
+<div id="crudModal" hidden>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 id="modal-title" style="color: #0f2b5b; margin-top: 0; text-align: center;">Add New Experience</h2>
+
+        <!-- novalidate: validasi ditangani ModelForm di server, pesan errornya tampil di form & toast -->
+        <form id="addExperienceForm" novalidate>
             {% csrf_token %}
-            <div style="font-size: 14px; color: #333;">
-                <label>Nama Posisi / Jabatan:</label>
-                <input type="text" id="title" name="title" class="modal-input" required>
-
-                <label>Deskripsi Pengalaman:</label>
-                <textarea id="description" name="description" class="modal-input" rows="3" required></textarea>
-
-                <label>Kategori Pekerjaan (Category):</label>
-                <select id="category" name="category" class="modal-input" required>
-                    <option value="full-time">Full-Time</option>
-                    <option value="part-time">Part-Time</option>
-                    <option value="internship">Internship</option>
-                    <option value="research">Research</option>
-                    <option value="volunteer">Volunteer</option>
-                    <option value="freelance">Freelance</option>
-                </select>
-
-                <label>Link / Path Foto Bukti Kegiatan (Thumbnail):</label>
-                <input type="text" id="thumbnail" name="thumbnail" class="modal-input" placeholder="Contoh: /static/img/Compfest.jpg">
-                
-                <label>Link / Path Logo Organisasi:</label>
-                <input type="text" id="logo_url" name="logo_url" class="modal-input" placeholder="Contoh: /static/img/Betis.jpg">
-
-                <label>Tahun Mulai (Started At):</label>
-                <input type="date" id="started_at" name="started_at" class="modal-input">
-
-                <label>Tahun Selesai (Kosongkan jika masih berlangsung):</label>
-                <input type="date" id="ended_at" name="ended_at" class="modal-input">
-            </div>
+            {% for field in form %}
+                <div class="modal-field" data-field="{{ field.name }}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {{ field }}
+                    <p class="field-error"></p>
+                </div>
+            {% endfor %}
 
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
-                <button type="button" onclick="hideModal()" class="btn-action" style="background-color: #ddd; color: #333; border: none;">Batal</button>
-                <button type="submit" class="btn-action btn-edit">Simpan</button>
+                <button type="button" class="btn-action btn-cancel" data-close-modal>Batal</button>
+                <button type="submit" class="btn-action btn-edit" id="submit-experience">Simpan</button>
             </div>
         </form>
     </div>
 </div>
+{% endif %}
+{% endblock content %}
 
-<!-- SKRIP AJAX & MODAL -->
+
+{% block scripts %}
 <script>
-    const isSuperuser = {{ user.is_superuser|yesno:"true,false"|default:"false" }};
-    const isEditor = {{ is_editor|yesno:"true,false"|default:"false" }};
+(function () {
+    "use strict";
 
-    function showModal() { document.getElementById('crudModal').style.display = 'flex'; }
-    function hideModal() { 
-        document.getElementById('crudModal').style.display = 'none'; 
-        document.getElementById('addExperienceForm').reset(); 
+    const app = document.getElementById("experience-app");
+    if (!app) return;
+
+    // ---------- Konfigurasi dari atribut data-* ----------
+    const PLACEHOLDER_ID = "00000000-0000-0000-0000-000000000000";
+    const config = {
+        listUrl: app.dataset.listUrl,
+        addUrl: app.dataset.addUrl,
+        starUrl: app.dataset.starUrl,
+        updateUrl: app.dataset.updateUrl,
+        deleteUrl: app.dataset.deleteUrl,
+        loginUrl: app.dataset.loginUrl,
+        isAuthenticated: app.dataset.authenticated === "true",
+        canEdit: app.dataset.canEdit === "true",
+        canDelete: app.dataset.canDelete === "true",
+    };
+    const urlFor = (template, id) => template.replace(PLACEHOLDER_ID, encodeURIComponent(id));
+    const AJAX_HEADERS = { "X-Requested-With": "XMLHttpRequest" };
+
+    const container = document.getElementById("experience-cards-container");
+    const meta = document.getElementById("experience-meta");
+    const searchInput = document.getElementById("experience-search");
+    const clearButton = document.getElementById("clear-search");
+    const categorySelect = document.getElementById("experience-category");
+
+    let activeController = null;   // untuk membatalkan request pencarian yang sudah usang
+
+    // ---------- Kondisi loading, kosong, error ----------
+    function renderLoading() {
+        container.setAttribute("aria-busy", "true");
+        meta.textContent = "Memuat data pengalaman...";
+        container.innerHTML = '<div class="exp-skeleton"></div>'.repeat(3);
     }
 
-    async function getExperiences() {
-        return fetch("{% url 'main:get_experiences_json' %}").then((res) => res.json());
+    function renderEmpty(query) {
+        const isFiltered = Boolean(query || categorySelect.value);
+        let message = "Belum ada pengalaman yang tercatat.";
+        if (query) {
+            message = `Tidak ada pengalaman yang cocok dengan "<strong>${escapeHtml(query)}</strong>".`;
+        } else if (isFiltered) {
+            message = "Belum ada pengalaman pada kategori ini.";
+        }
+        meta.textContent = "";
+        container.innerHTML = `
+            <div class="exp-state">
+                <i class="fa-solid fa-briefcase" aria-hidden="true"></i>
+                <p>${message}</p>
+                ${isFiltered ? '<button type="button" class="btn-action btn-edit" data-action="reset-filter">Tampilkan Semua</button>' : ""}
+            </div>`;
     }
 
-    async function refreshExperiences() {
-        const container = document.getElementById("experience-cards-container");
-        container.innerHTML = ""; 
-        
-        const experiences = await getExperiences();
-        let htmlString = "";
+    function renderError(message) {
+        meta.textContent = "";
+        container.innerHTML = `
+            <div class="exp-state error" role="alert">
+                <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                <p><strong>Gagal memuat data.</strong> ${escapeHtml(message)}</p>
+                <button type="button" class="btn-action btn-edit" data-action="retry">Coba Lagi</button>
+            </div>`;
+    }
 
-        if (experiences.length === 0) {
-            htmlString = `
-                <div style="text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; grid-column: 1 / -1; background: white;">
-                    <p>Belum ada pengalaman yang tercatat.</p>
-                </div>`;
-        } else {
-            experiences.forEach((item) => {
-                const exp = item.fields;
-                const pk = item.pk;
+    // ---------- Kartu pengalaman ----------
+        function formatPeriod(exp) {
+        const start = formatMonthYear(exp.started_at, "en-GB");
+        const end = exp.is_ongoing ? "Present" : formatMonthYear(exp.ended_at, "en-GB");
+        if (!start) return end || "-";
+        return `${start} - ${end}`;
+    }
 
-                const start = exp.started_at ? new Date(exp.started_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : '-';
-                const end = exp.ended_at ? new Date(exp.ended_at).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' }) : 'Present';
+    function starHtml(exp) {
+        const count = Number(exp.star_count) || 0;
+        const label = `${count} Star${count === 1 ? "" : "s"}`;
+        if (!config.isAuthenticated) {
+            // Pengunjung anonim tetap melihat jumlah star; klik diarahkan ke halaman login
+            return `
+                <a class="btn-star" href="${escapeHtml(config.loginUrl)}" title="Login untuk memberi star">
+                    <i class="fa-regular fa-star" aria-hidden="true"></i> <span data-star-label>${label}</span>
+                </a>`;
+        }
+        const starred = Boolean(exp.is_starred);
+        return `
+            <button type="button" class="btn-star${starred ? " is-starred" : ""}"
+                data-action="star" data-id="${escapeHtml(exp.id)}" aria-pressed="${starred}"
+                title="${starred ? "Cabut star" : "Beri star"}">
+                <i class="${starred ? "fa-solid" : "fa-regular"} fa-star" aria-hidden="true"></i>
+                <span data-star-label>${label}</span>
+            </button>`;
+    }
 
-                const logoHtml = exp.logo_url 
-                    ? `<img src="${exp.logo_url}" alt="Logo" onerror="this.style.display='none'">` 
-                    : `<i class="fa-solid fa-briefcase exp-logo-fallback"></i>`;
-                
-                const thumbnailHtml = exp.thumbnail 
-                    ? `<div class="exp-proof-photo"><img src="${exp.thumbnail}" alt="Bukti Kegiatan" onerror="this.style.display='none'"></div>` 
-                    : ``;
+    function actionsHtml(exp) {
+        if (!config.canEdit && !config.canDelete) return "";
+        return `
+            <div class="exp-actions">
+                ${config.canEdit ? `<a href="${escapeHtml(urlFor(config.updateUrl, exp.id))}" class="btn-action btn-edit">Edit</a>` : ""}
+                ${config.canDelete ? `<button type="button" class="btn-action btn-delete" data-action="delete" data-id="${escapeHtml(exp.id)}">Hapus</button>` : ""}
+            </div>`;
+    }
 
-                // --- MISI 4: PEMBERSIHAN DENGAN DOMPURIFY ---
-                const safeTitle = DOMPurify.sanitize(exp.title);
-                const safeDescription = DOMPurify.sanitize(exp.description);
-                // --------------------------------------------
+    function cardHtml(exp) {
+        // Semua nilai teks dari server di-escape sebelum masuk ke HTML (pencegahan XSS),
+        // dan URL gambar hanya diizinkan http(s) atau jalur relatif seperti /static/img/...
+        const title = escapeHtml(exp.title);
+        const logo = safeUrl(exp.logo_url);
+        const thumbnail = safeUrl(exp.thumbnail);
 
-                let buttonsHtml = '';
-                if (isSuperuser || isEditor) {
-                    buttonsHtml = `<div class="exp-actions">
-                        <a href="/experience/${pk}/update/" class="btn-action btn-edit">Edit</a>`;
-                    if (isSuperuser) {
-                        buttonsHtml += `
-                            <form method="POST" action="/experience/${pk}/delete/" style="flex: 1; margin: 0; display: flex;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-action btn-delete" style="width: 100%;" onclick="return confirm('Yakin ingin menghapus pengalaman ini?')">Hapus</button>
-                            </form>`;
-                    }
-                    buttonsHtml += `</div>`;
-                }
+        const logoHtml = logo
+            ? `<img src="${escapeHtml(logo)}" alt="Logo organisasi" loading="lazy">`
+            : '<i class="fa-solid fa-briefcase exp-logo-fallback" aria-hidden="true"></i>';
+        const thumbnailHtml = thumbnail
+            ? `<div class="exp-proof-photo"><img src="${escapeHtml(thumbnail)}" alt="Bukti kegiatan ${title}" loading="lazy"></div>`
+            : "";
 
-                const starHtml = `
-                    <form method="POST" action="/experience/${pk}/star/" style="margin-bottom: 15px; margin-top: auto;">
-                        {% csrf_token %}
-                        <button type="submit" style="background:none; border:none; padding:0; cursor:pointer; font-size: 14px; color: #D4AF37; font-weight: bold; display: flex; align-items: center; gap: 5px;">
-                            ⭐ ${exp.total_stars || 0} Stars
-                        </button>
-                    </form>`;
-
-                htmlString += `
-                    <div class="exp-card">
-                        <div class="exp-body">
-                            <div class="exp-top-row">
-                                <div class="exp-logo">${logoHtml}</div>
-                                <div class="exp-title-box">
-                                    <h3 class="exp-title">${safeTitle}</h3>
-                                    <p class="exp-date">🗓️ ${start} - ${end}</p>
-                                </div>
+        return `
+            <div class="exp-card" data-id="${escapeHtml(exp.id)}">
+                <div class="exp-body">
+                    <div class="exp-top-row">
+                        <div class="exp-logo">${logoHtml}</div>
+                        <div class="exp-title-box">
+                            <h3 class="exp-title">${title}</h3>
+                            <p class="exp-date">🗓️ ${escapeHtml(formatPeriod(exp))}</p>
+                            <div class="exp-badges">
+                                <span class="exp-badge">${escapeHtml(exp.category_display)}</span>
+                                ${exp.is_ongoing ? '<span class="exp-badge ongoing">Berlangsung</span>' : ""}
                             </div>
-                            <p class="exp-desc">${safeDescription}</p>
-                            ${thumbnailHtml}
-                            ${starHtml}
-                            ${buttonsHtml}
                         </div>
-                    </div>`;
+                    </div>
+                    <p class="exp-desc">${escapeHtml(exp.description)}</p>
+                    ${thumbnailHtml}
+                    ${starHtml(exp)}
+                    ${actionsHtml(exp)}
+                </div>
+            </div>`;
+    }
+
+    function renderList(experiences, query) {
+        container.setAttribute("aria-busy", "false");
+        if (!experiences.length) {
+            renderEmpty(query);
+            return;
+        }
+        meta.textContent = query
+            ? `${experiences.length} pengalaman cocok dengan "${query}"`
+            : `Menampilkan ${experiences.length} pengalaman`;
+        container.innerHTML = experiences.map(cardHtml).join("");
+    }
+
+    // ---------- Ambil data dari endpoint JSON ----------
+    async function refreshExperiences() {
+        // Batalkan request sebelumnya agar hasil lama tidak menimpa hasil terbaru
+        if (activeController) activeController.abort();
+        const controller = new AbortController();
+        activeController = controller;
+
+        const query = searchInput.value.trim();
+        const params = new URLSearchParams();
+        if (query) params.set("q", query);
+        if (categorySelect.value) params.set("category", categorySelect.value);
+
+        renderLoading();
+        try {
+            const response = await fetch(`${config.listUrl}?${params.toString()}`, {
+                headers: { ...AJAX_HEADERS, Accept: "application/json" },
+                signal: controller.signal,
+            });
+            if (!response.ok) {
+                throw new Error(`Server membalas dengan status ${response.status}.`);
+            }
+            const data = await response.json();
+            renderList(data.experiences || [], query);
+        } catch (error) {
+            if (error.name === "AbortError") return;
+            renderError(error.message || "Periksa koneksi internetmu lalu coba lagi.");
+        } finally {
+            if (activeController === controller) activeController = null;
+        }
+    }
+
+    // ---------- Pencarian dengan debouncing ----------
+    const debouncedRefresh = debounce(refreshExperiences, 400);
+
+    searchInput.addEventListener("input", () => {
+        clearButton.hidden = searchInput.value.length === 0;
+        debouncedRefresh();
+    });
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") event.preventDefault();
+    });
+    clearButton.addEventListener("click", () => {
+        searchInput.value = "";
+        clearButton.hidden = true;
+        searchInput.focus();
+        refreshExperiences();
+    });
+    categorySelect.addEventListener("change", refreshExperiences);
+
+    // ---------- Star & hapus lewat AJAX ----------
+    async function postJson(url) {
+        const response = await fetch(url, {
+            method: "POST",
+            headers: { ...AJAX_HEADERS, "X-CSRFToken": getCsrfToken() },
+        });
+        const data = await readJsonSafely(response);
+        if (!response.ok) {
+            throw new Error(data.message || `Permintaan gagal (status ${response.status}).`);
+        }
+        return data;
+    }
+
+    async function toggleStar(button) {
+        button.disabled = true;
+        try {
+            const data = await postJson(urlFor(config.starUrl, button.dataset.id));
+            const count = Number(data.star_count) || 0;
+            button.classList.toggle("is-starred", data.is_starred);
+            button.setAttribute("aria-pressed", String(data.is_starred));
+            button.title = data.is_starred ? "Cabut star" : "Beri star";
+            button.querySelector("i").className = `${data.is_starred ? "fa-solid" : "fa-regular"} fa-star`;
+            button.querySelector("[data-star-label]").textContent = `${count} Star${count === 1 ? "" : "s"}`;
+        } catch (error) {
+            showToast(error.message, "error");
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    async function deleteExperience(button) {
+        const card = button.closest(".exp-card");
+        const title = card ? card.querySelector(".exp-title").textContent : "pengalaman ini";
+        if (!window.confirm(`Yakin ingin menghapus "${title}"?`)) return;
+
+        button.disabled = true;
+        try {
+            const data = await postJson(urlFor(config.deleteUrl, button.dataset.id));
+            showToast(data.message || "Pengalaman berhasil dihapus!", "success");
+            if (card) card.classList.add("is-removing");
+            setTimeout(refreshExperiences, 300);
+        } catch (error) {
+            showToast(error.message, "error");
+            button.disabled = false;
+        }
+    }
+
+    // Event delegation: satu listener untuk semua tombol di dalam kartu
+    container.addEventListener("click", (event) => {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+
+        switch (target.dataset.action) {
+            case "star":
+                toggleStar(target);
+                break;
+            case "delete":
+                deleteExperience(target);
+                break;
+            case "retry":
+                refreshExperiences();
+                break;
+            case "reset-filter":
+                searchInput.value = "";
+                categorySelect.value = "";
+                clearButton.hidden = true;
+                refreshExperiences();
+                break;
+        }
+    });
+
+    // Gambar dengan link rusak disembunyikan (event "error" tidak bubble, jadi pakai fase capture)
+    container.addEventListener("error", (event) => {
+        const img = event.target;
+        if (img.tagName !== "IMG") return;
+        const photoBox = img.closest(".exp-proof-photo");
+        if (photoBox) {
+            photoBox.remove();
+        } else {
+            img.replaceWith(Object.assign(document.createElement("i"), {
+                className: "fa-solid fa-briefcase exp-logo-fallback",
+            }));
+        }
+    }, true);
+
+    // ---------- Modal tambah data ----------
+    // Modal hanya ada di halaman Pemilik; tanpa pengecekan ini getElementById mengembalikan null
+    const modal = document.getElementById("crudModal");
+    const openButton = document.getElementById("open-add-modal");
+    const form = document.getElementById("addExperienceForm");
+
+    if (modal && openButton && form) {
+        const submitButton = document.getElementById("submit-experience");
+
+        function clearFieldErrors() {
+            form.querySelectorAll(".modal-field").forEach((field) => {
+                field.classList.remove("has-error");
+                field.querySelector(".field-error").textContent = "";
             });
         }
-        container.innerHTML = htmlString;
+
+        function showFieldErrors(errors) {
+            if (!errors) return;
+            let firstInvalid = null;
+            Object.entries(errors).forEach(([name, messages]) => {
+                const field = form.querySelector(`.modal-field[data-field="${CSS.escape(name)}"]`);
+                if (!field) return;
+                field.classList.add("has-error");
+                // textContent: pesan dari server tidak pernah diperlakukan sebagai HTML
+                field.querySelector(".field-error").textContent = messages.join(" ");
+                if (!firstInvalid) firstInvalid = field.querySelector("input, textarea, select");
+            });
+            if (firstInvalid) firstInvalid.focus();
+        }
+
+        function showModal() {
+            modal.hidden = false;
+            document.body.classList.add("modal-open");
+            const firstInput = form.querySelector("input:not([type=hidden]), textarea, select");
+            if (firstInput) firstInput.focus();
+        }
+
+        function hideModal() {
+            modal.hidden = true;
+            document.body.classList.remove("modal-open");
+            clearFieldErrors();
+            form.reset();
+            openButton.focus();
+        }
+
+        openButton.addEventListener("click", showModal);
+        form.querySelectorAll("[data-close-modal]").forEach((el) => el.addEventListener("click", hideModal));
+        modal.addEventListener("click", (event) => {
+            if (event.target === modal) hideModal();   // klik area gelap di luar kotak
+        });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.hidden) hideModal();
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearFieldErrors();
+            submitButton.disabled = true;
+            submitButton.textContent = "Menyimpan...";
+
+            try {
+                const response = await fetch(config.addUrl, {
+                    method: "POST",
+                    // FormData membawa field csrfmiddlewaretoken dari form;
+                    // header X-CSRFToken ditambahkan sebagai lapisan kedua.
+                    headers: { ...AJAX_HEADERS, "X-CSRFToken": getCsrfToken() },
+                    body: new FormData(form),
+                });
+                const data = await readJsonSafely(response);
+
+                if (response.status === 201) {
+                    showToast(data.message || "Berhasil menambahkan pengalaman baru!", "success");
+                    hideModal();
+                    // Tampilkan semua data agar pengalaman baru langsung terlihat, tanpa reload
+                    searchInput.value = "";
+                    categorySelect.value = "";
+                    clearButton.hidden = true;
+                    await refreshExperiences();
+                } else if (response.status === 400) {
+                    showFieldErrors(data.errors);
+                    showToast(data.message || "Data tidak valid. Periksa kembali isian form.", "error");
+                } else if (response.status === 403) {
+                    showToast(data.message || "Akses ditolak atau sesi kedaluwarsa. Muat ulang halaman lalu coba lagi.", "error");
+                } else {
+                    throw new Error(data.message || `Server membalas dengan status ${response.status}.`);
+                }
+            } catch (error) {
+                showToast(`Gagal menyimpan data: ${error.message}`, "error");
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Simpan";
+            }
+        });
     }
 
-    function addExperience(event) {
-        event.preventDefault();
-        fetch("{% url 'main:add_experience_ajax' %}", {
-            method: "POST",
-            body: new FormData(document.querySelector('#addExperienceForm'))
-        }).then(response => {
-            if (response.ok) {
-                hideModal();
-                refreshExperiences();
-                if (typeof showToast === 'function') {
-                    showToast("Berhasil menambahkan pengalaman baru lewat AJAX!");
-                }
-            } else {
-                alert("Gagal menambahkan data. Periksa kembali inputanmu!");
-            }
-        })
-    }
+    // Muat data pertama kali
     refreshExperiences();
+})();
 </script>
-{% endblock content %}
+{% endblock scripts %}

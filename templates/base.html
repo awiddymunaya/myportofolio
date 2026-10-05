@@ -45,6 +45,38 @@
             opacity: 1;
             transform: translateX(0);
         }
+
+        .custom-toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 360px;
+        }
+
+        .custom-toast.error {
+            border-left-color: #e53935;
+        }
+
+        .custom-toast.error i {
+            color: #ff8a80;
+        }
+
+        .custom-toast.success i,
+        .custom-toast.info i {
+            color: #D4AF37;
+        }
+
+        @media (max-width: 600px) {
+            #toast-container {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+            }
+            .custom-toast {
+                min-width: 0;
+                max-width: none;
+            }
+        }
     </style>
 </head>
 <body style="background-color: #fafbfc; margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
@@ -92,27 +124,21 @@
     </footer>
 
     <!-- WADAH & SKRIP TOAST NOTIFICATION -->
-    <div id="toast-container"></div>
+    <div id="toast-container" aria-live="polite"></div>
+
+    <!-- Skrip bersama: showToast() dan fungsi bantu AJAX (getCookie, escapeHtml, debounce, ...) -->
+    <script src="{% static 'js/toast.js' %}"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
     <script>
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.classList.add('custom-toast');
-            toast.innerText = message;
-            container.appendChild(toast);
-
-            setTimeout(() => { toast.classList.add('show'); }, 10);
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => { toast.remove(); }, 400);
-            }, 3000);
-        }
-
         {% if messages %}
             {% for message in messages %}
-                showToast("{{ message|escapejs }}");
+                showToast("{{ message|escapejs }}", "{% if 'error' in message.tags %}error{% else %}success{% endif %}");
             {% endfor %}
         {% endif %}
     </script>
+
+    <!-- Skrip khusus tiap halaman -->
+    {% block scripts %}
+    {% endblock scripts %}
 </body>
 </html>
