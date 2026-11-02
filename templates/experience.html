@@ -169,17 +169,17 @@
 <section
     class="exp-section"
     id="experience-app"
-    data-list-url="{% url 'main:show_experience_json' %}"
-    data-add-url="{% url 'main:add_experience_ajax' %}"
-    data-star-url="{% url 'main:toggle_star' '00000000-0000-0000-0000-000000000000' %}"
+    data-list-url="{% url 'api:experience-list' %}"
+    data-detail-url="{% url 'api:experience-detail' '00000000-0000-0000-0000-000000000000' %}"
+    data-star-url="{% url 'api:experience-star' '00000000-0000-0000-0000-000000000000' %}"
     data-update-url="{% url 'main:update_experience' '00000000-0000-0000-0000-000000000000' %}"
-    data-delete-url="{% url 'main:delete_experience' '00000000-0000-0000-0000-000000000000' %}"
     data-login-url="{% url 'main:login' %}"
     data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
     data-can-edit="{{ can_edit|yesno:'true,false' }}"
     data-can-delete="{{ can_delete|yesno:'true,false' }}"
 >
-    <!-- Token CSRF untuk semua request POST lewat fetch (star, hapus, tambah) -->
+    <!-- Token CSRF untuk request POST/DELETE ke API DRF. Tag ini juga memastikan cookie
+         csrftoken dibuat, termasuk untuk pengguna biasa yang hanya memberi star. -->
     <div hidden>{% csrf_token %}</div>
 
     <div class="exp-header-container">
@@ -251,18 +251,16 @@
     // ---------- Konfigurasi dari atribut data-* ----------
     const PLACEHOLDER_ID = "00000000-0000-0000-0000-000000000000";
     const config = {
-        listUrl: app.dataset.listUrl,
-        addUrl: app.dataset.addUrl,
-        starUrl: app.dataset.starUrl,
-        updateUrl: app.dataset.updateUrl,
-        deleteUrl: app.dataset.deleteUrl,
+        listUrl: app.dataset.listUrl,       // GET daftar, POST tambah (API DRF)
+        detailUrl: app.dataset.detailUrl,   // GET/PATCH/DELETE satu data (API DRF)
+        starUrl: app.dataset.starUrl,       // POST beri/batalkan star (API DRF)
+        updateUrl: app.dataset.updateUrl,   // halaman form edit lama (tetap dipakai)
         loginUrl: app.dataset.loginUrl,
         isAuthenticated: app.dataset.authenticated === "true",
         canEdit: app.dataset.canEdit === "true",
         canDelete: app.dataset.canDelete === "true",
     };
     const urlFor = (template, id) => template.replace(PLACEHOLDER_ID, encodeURIComponent(id));
-    const AJAX_HEADERS = { "X-Requested-With": "XMLHttpRequest" };
 
     const container = document.getElementById("experience-cards-container");
     const meta = document.getElementById("experience-meta");
@@ -400,20 +398,22 @@
 
         const query = searchInput.value.trim();
         const params = new URLSearchParams();
-        if (query) params.set("q", query);
+        if (query) params.set("title", query);
         if (categorySelect.value) params.set("category", categorySelect.value);
 
         renderLoading();
         try {
             const response = await fetch(`${config.listUrl}?${params.toString()}`, {
-                headers: { ...AJAX_HEADERS, Accept: "application/json" },
+                // Accept: application/json membuat DRF membalas JSON, bukan halaman Browsable API
+                headers: { Accept: "application/json" },
                 signal: controller.signal,
             });
             if (!response.ok) {
                 throw new Error(`Server membalas dengan status ${response.status}.`);
             }
-            const data = await response.json();
-            renderList(data.experiences || [], query);
+            // API DRF langsung membalas array: [{id, title, ...}, ...]
+            const experiences = await response.json();
+            renderList(experiences, query);
         } catch (error) {
             if (error.name === "AbortError") return;
             renderError(error.message || "Periksa koneksi internetmu lalu coba lagi.");
@@ -440,15 +440,31 @@
     });
     categorySelect.addEventListener("change", refreshExperiences);
 
-    // ---------- Star & hapus lewat AJAX ----------
-    async function postJson(url) {
+    // ---------- Request tulis ke API DRF ----------
+    // Error DRF berbentuk {"detail": "..."} (403/404) atau {"field": ["..."]} (400)
+    function apiErrorMessage(data, status) {
+        const messages = Object.values(data || {}).flat().filter((value) => typeof value === "string");
+        return messages.join(" ") || `Permintaan gagal (status ${status}).`;
+    }
+
+    // Satu fungsi untuk POST/PATCH/DELETE: JSON, token CSRF, dan error ditangani seragam
+    async function apiRequest(url, method, payload) {
         const response = await fetch(url, {
-            method: "POST",
-            headers: { ...AJAX_HEADERS, "X-CSRFToken": getCsrfToken() },
+            method,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCsrfToken(),
+            },
+            body: payload === undefined ? undefined : JSON.stringify(payload),
         });
+        if (response.status === 204) return null;   // DELETE berhasil: body kosong, jangan .json()
         const data = await readJsonSafely(response);
         if (!response.ok) {
-            throw new Error(data.message || `Permintaan gagal (status ${response.status}).`);
+            const error = new Error(apiErrorMessage(data, response.status));
+            error.status = response.status;
+            error.data = data;
+            throw error;
         }
         return data;
     }
@@ -456,7 +472,7 @@
     async function toggleStar(button) {
         button.disabled = true;
         try {
-            const data = await postJson(urlFor(config.starUrl, button.dataset.id));
+            const data = await apiRequest(urlFor(config.starUrl, button.dataset.id), "POST");
             const count = Number(data.star_count) || 0;
             button.classList.toggle("is-starred", data.is_starred);
             button.setAttribute("aria-pressed", String(data.is_starred));
@@ -477,8 +493,8 @@
 
         button.disabled = true;
         try {
-            const data = await postJson(urlFor(config.deleteUrl, button.dataset.id));
-            showToast(data.message || "Pengalaman berhasil dihapus!", "success");
+            await apiRequest(urlFor(config.detailUrl, button.dataset.id), "DELETE");
+            showToast(`"${title}" berhasil dihapus.`, "success");
             if (card) card.classList.add("is-removing");
             setTimeout(refreshExperiences, 300);
         } catch (error) {
@@ -586,32 +602,35 @@
             submitButton.textContent = "Menyimpan...";
 
             try {
-                const response = await fetch(config.addUrl, {
-                    method: "POST",
-                    // FormData membawa field csrfmiddlewaretoken dari form;
-                    // header X-CSRFToken ditambahkan sebagai lapisan kedua.
-                    headers: { ...AJAX_HEADERS, "X-CSRFToken": getCsrfToken() },
-                    body: new FormData(form),
+                // Ambil field model saja (tanpa csrfmiddlewaretoken), lalu kirim sebagai JSON
+                const fields = new FormData(form);
+                const payload = {};
+                ["title", "description", "category", "logo_url", "thumbnail", "started_at", "ended_at"]
+                    .forEach((name) => { payload[name] = fields.get(name) ?? ""; });
+                // Tanggal kosong harus dikirim sebagai null, bukan string kosong
+                ["started_at", "ended_at"].forEach((name) => {
+                    if (!payload[name]) payload[name] = null;
                 });
-                const data = await readJsonSafely(response);
 
-                if (response.status === 201) {
-                    showToast(data.message || "Berhasil menambahkan pengalaman baru!", "success");
-                    hideModal();
-                    // Tampilkan semua data agar pengalaman baru langsung terlihat, tanpa reload
-                    searchInput.value = "";
-                    categorySelect.value = "";
-                    clearButton.hidden = true;
-                    await refreshExperiences();
-                } else if (response.status === 400) {
-                    showFieldErrors(data.errors);
-                    showToast(data.message || "Data tidak valid. Periksa kembali isian form.", "error");
-                } else if (response.status === 403) {
-                    showToast(data.message || "Akses ditolak atau sesi kedaluwarsa. Muat ulang halaman lalu coba lagi.", "error");
-                } else {
-                    throw new Error(data.message || `Server membalas dengan status ${response.status}.`);
-                }
+                const created = await apiRequest(config.listUrl, "POST", payload);   // 201 Created
+                showToast(`Pengalaman "${created.title}" berhasil ditambahkan.`, "success");
+                hideModal();
+                // Tampilkan semua data agar pengalaman baru langsung terlihat, tanpa reload
+                searchInput.value = "";
+                categorySelect.value = "";
+                clearButton.hidden = true;
+                await refreshExperiences();
             } catch (error) {
+                if (error.status === 400) {
+                    // 400: error per field dari serializer, tampilkan di bawah input
+                    showFieldErrors(error.data);
+                    showToast(error.message || "Data tidak valid. Periksa kembali isian form.", "error");
+                    return;
+                }
+                if (error.status === 403) {
+                    showToast(error.message || "Akses ditolak atau sesi kedaluwarsa. Muat ulang halaman lalu coba lagi.", "error");
+                    return;
+                }
                 showToast(`Gagal menyimpan data: ${error.message}`, "error");
             } finally {
                 submitButton.disabled = false;
