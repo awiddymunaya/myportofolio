@@ -15,7 +15,7 @@ class IsPortfolioOwnerOrReadOnly(BasePermission):
 
 class IsPortfolioOwnerOrEditorOrReadOnly(BasePermission):
     """
-    Aturan Tugas 4 untuk Experience:
+    Aturan Tugas 4, dipakai untuk Experience (Tutorial 07) dan Education (Tugas 6):
       - semua orang boleh membaca (GET/HEAD/OPTIONS)
       - Pemilik (superuser) boleh semuanya
       - Editor hanya boleh mengubah (PUT/PATCH), tidak boleh menambah atau menghapus
