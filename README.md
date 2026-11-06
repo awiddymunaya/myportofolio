@@ -254,4 +254,4 @@ Pola DRF dari Tutorial 07 (yang diterapkan pada **Experience**) dipakai ulang pa
   * AI tidak menjalankan proyek di laptop saya. Test-nya dijalankan di lingkungan AI dengan Python 3.11, sedangkan saya memakai Python 3.9, jadi saya tetap harus menjalankan `python manage.py test main` dan `runserver` sendiri.
   * AI tidak memiliki akses ke database lokal saya, sehingga migrasi `0010_education_stars` harus saya jalankan sendiri.
   * Instruksi terminal pertama dari AI berisi komentar `#` yang ikut tertempel dan menyebabkan error di zsh, sehingga perintahnya perlu saya jalankan ulang satu per satu.
-* **Perbaikan manual yang saya lakukan:** *(Memperbaiki Model Web)*
+* **Perbaikan manual yang saya lakukan:** *(Memperbaiki Model Web, menjalankan migrasi dan 49 test di Python 3.9, menguji halaman Education dengan akun Pemilik, Editor, dan pengguna biasa, serta memperbaiki cara menjalankan perintah terminal satu per satu)*
