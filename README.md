@@ -197,3 +197,61 @@ Pola AJAX dari Tutorial 05 diterapkan pada halaman **Experience** (bagian dari T
   * AI menemukan bahwa view lama `add_experience_ajax` dan `add_education_ajax` memakai `@csrf_exempt` dan tidak mengecek hak akses, sehingga keduanya diperbaiki. Saya perlu memastikan halaman Education yang memanggil endpoint tersebut tetap berfungsi.
 * **Perbaikan manual yang saya lakukan:** *(isi sesuai yang benar-benar kamu ubah atau temukan saat menguji)*
 * **Log prompting:** *(tempel tautan *share* percakapan AI di sini)*
+
+## Tugas 6
+
+1. **REST (*Representational State Transfer*)** adalah gaya arsitektur untuk membangun API di atas HTTP. Data dipandang sebagai **resource** yang punya alamat (URL) sendiri, misalnya `/api/v1/education/` untuk kumpulan data dan `/api/v1/education/<id>/` untuk satu data. Aksi terhadap resource ditentukan oleh **method HTTP** (`GET` membaca, `POST` membuat, `PUT`/`PATCH` mengubah, `DELETE` menghapus), hasilnya dikomunikasikan lewat **status code** yang tepat (201, 400, 403, 404, 204), dan setiap request bersifat **stateless**, yaitu membawa semua informasi yang dibutuhkan server.
+   Mengembalikan JSON saja belum cukup. Endpoint seperti `/api/experience/add-ajax/` pada Tugas 5 memang membalas JSON, tetapi aksinya ditulis di URL (`add-ajax`), hanya memakai `POST`, dan URL-nya tidak mewakili resource. API seperti itu lebih tepat disebut RPC lewat HTTP. API baru disebut RESTful jika URL, method, dan status code dipakai sesuai makna masing-masing.
+   **`PUT`** mengganti seluruh representasi resource, sehingga semua field wajib dikirim. Field yang tidak dikirim dianggap tidak valid (di proyek ini dibalas 400). **`PATCH`** hanya mengubah field yang dikirim. Contohnya, `PUT` cocok ketika form edit mengirim ulang seluruh data Education. `PATCH` cocok ketika hanya satu hal yang berubah, misalnya Editor memperbarui `end_year` dari "Sekarang" menjadi "2029" tanpa perlu mengirim field lain. Modal edit di halaman Education memakai `PATCH`.
+
+2. **Serializer** di DRF punya dua peran. Ke arah luar, serializer mengubah objek model menjadi data Python sederhana yang bisa dirender menjadi JSON (*serialization*). Ke arah dalam, serializer menerima data dari request, memvalidasinya, lalu menyimpannya ke model (*deserialization*). Di proyek ini, `EducationSerializer` menentukan field mana yang tampil (daftar `fields` eksplisit, sehingga relasi `stars` yang berisi id User tidak ikut terbuka), menghitung field read-only `star_count` dan `is_starred`, serta menjalankan `validate_<field>` yang membersihkan input dengan `strip_tags`.
+   Dibandingkan merakit dictionary manual dengan `JsonResponse` seperti `serialize_experience()` pada Tutorial 05, keuntungannya:
+   - **Satu sumber kebenaran:** representasi dan validasi ditulis sekali, lalu dipakai untuk list, detail, `POST`, `PUT`, dan `PATCH`.
+   - **Validasi bawaan:** tipe data, panjang maksimum, dan field wajib langsung diambil dari model. Error dikembalikan per field dalam format konsisten dengan status 400.
+   - **Lebih aman:** field yang tidak ada di `fields` atau ditandai read-only tidak bisa diisi klien, sehingga mencegah *mass assignment* (misalnya mengirim `star_count: 99` tidak berpengaruh).
+   - **Lebih sedikit kode berulang:** tidak perlu mengubah tanggal atau UUID ke string secara manual, dan `serializer.save()` langsung membuat atau memperbarui objek.
+
+3. **Autentikasi** menjawab "siapa kamu?", yaitu mengenali pengguna dari request. Di proyek ini, `SessionAuthentication` membaca cookie sesi Django dan mengisi `request.user`. **Otorisasi** menjawab "apa yang boleh kamu lakukan?". Di DRF, otorisasi ditangani **permission class**: `IsPortfolioOwnerOrEditorOrReadOnly` mengizinkan semua orang membaca, Editor melakukan `PUT`/`PATCH`, dan hanya Pemilik (superuser) yang boleh `POST` dan `DELETE`. `IsAuthenticated` pada endpoint star memastikan hanya akun yang sudah login yang bisa memberi star.
+   Hak akses harus diperiksa di server karena tombol di template hanya tampilan. Siapa pun bisa mengirim request langsung tanpa halaman kita, misalnya lewat `curl`, Postman, Browsable API, atau `fetch()` dari console browser. Jika server tidak memeriksa, pengguna biasa tetap bisa menghapus data walaupun tombol Hapus disembunyikan. Saat menguji, request `DELETE` dari console browser dengan akun Editor tetap dibalas **403** oleh permission class. Menyembunyikan tombol hanya untuk kenyamanan pengguna, bukan untuk keamanan.
+
+4. `SessionAuthentication` mengandalkan **cookie sesi** yang dikirim browser secara otomatis ke domain kita, termasuk ketika request dipicu dari situs lain. Tanpa perlindungan, situs jahat bisa membuat form atau `fetch()` yang mengirim `DELETE` ke `/api/v1/education/<id>/` saat korban sedang login, dan request itu akan dianggap sah. Inilah serangan **CSRF**. Karena itu DRF tetap mewajibkan token CSRF untuk method yang mengubah data (`POST`, `PUT`, `PATCH`, `DELETE`) pada `SessionAuthentication`. Token ini hanya bisa dibaca oleh halaman dari domain kita, lalu dikirim lewat header `X-CSRFToken`. Halaman Education memasang cookie `csrftoken` dengan `@ensure_csrf_cookie` dan menyertakan header tersebut di setiap request tulis.
+   `force_authenticate` langsung menempelkan user ke request dan **melewati proses autentikasi sesi**, termasuk pengecekan CSRF yang hanya dijalankan di dalam `SessionAuthentication`. Akibatnya, test dengan `force_authenticate` tetap lulus walaupun token CSRF tidak dikirim, sehingga tidak bisa membuktikan perlindungan CSRF berjalan. Untuk itu, test di `main/tests_education_api.py` memakai `APIClient(enforce_csrf_checks=True)` dan `.login()`. Test tersebut membuktikan bahwa request tanpa token dibalas 403 dan database tidak berubah, sedangkan request dengan token dari cookie `csrftoken` berhasil.
+
+### Ringkasan Implementasi Tugas 6
+
+Pola DRF dari Tutorial 07 (yang diterapkan pada **Experience**) dipakai ulang pada bagian **Education**, yaitu bagian yang saya kerjakan sendiri sejak Tugas 3.
+
+| Kebutuhan | Implementasi |
+| --- | --- |
+| Relasi *star* | `Education.stars` (`ManyToManyField` ke `User`) beserta migrasi `0010_education_stars`. |
+| Serializer | `EducationSerializer` di `main/serializers.py` dengan `fields` eksplisit, `star_count` & `is_starred` read-only, `validate_<field>` memakai `strip_tags` (fungsi yang sama dengan `clean_<field>` Tugas 5), validasi tahun masuk 1900–2100, dan tahun lulus tidak boleh sebelum tahun masuk. |
+| Permission | `IsPortfolioOwnerOrEditorOrReadOnly` untuk daftar & detail, `IsAuthenticated` untuk star. Akun pemberi star selalu `request.user`. |
+| API view | `education_list` (`GET`, `POST`), `education_detail` (`GET`, `PUT`, `PATCH`, `DELETE`), dan `education_star` (`POST`) dengan `@api_view` dan `SessionAuthentication` di `main/api_views.py`. |
+| URL | `/api/v1/education/`, `/api/v1/education/<uuid>/`, `/api/v1/education/<uuid>/star/` dengan nama `education-list`, `education-detail`, `education-star`. |
+| Pencarian | Dipindah ke parameter query `?q=` yang mencocokkan nama institusi atau jenjang. |
+| Status HTTP | 201 saat dibuat, 400 untuk input tidak valid, 403 untuk aksi yang tidak diizinkan, 404 untuk data yang tidak ada, 204 setelah dihapus. |
+| Halaman Education | Semua data diambil lewat API. Pencarian dengan *debouncing*, tambah lewat modal (Pemilik), edit lewat modal yang mengirim `PATCH` (Pemilik & Editor), *star*, dan hapus, semuanya tanpa *reload*. Error 400/403 tampil di *toast* dan di bawah input. Setiap request tulis membawa `X-CSRFToken`, dan semua teks di-*escape* dengan `escapeHtml()`. |
+| View lama | `create_education`, `update_education`, dan `delete_education` memakai helper peran yang sama (`can_add_data`, `can_edit_data`, `can_delete_data`) sehingga konsisten dengan API. |
+| Testing | 26 test di `main/tests_education_api.py`: tiap peran (pengunjung, pengguna biasa, Editor, Pemilik), pengecekan isi database pada test penolakan, validasi input, star, field read-only, dan CSRF dengan `APIClient(enforce_csrf_checks=True)` + `.login()`. Total `python manage.py test main` menjadi 49 test. |
+
+**Cara menguji:**
+1. Buka `/api/v1/education/` untuk melihat Browsable API. Coba `/api/v1/education/?q=sma`.
+2. Buka `/education/` tanpa login: data dan jumlah *star* tampil, tanpa tombol Edit, Hapus, atau Tambah.
+3. Login sebagai pengguna biasa: tombol *star* bisa dipakai.
+4. Login sebagai Editor: tombol Edit membuka modal dan menyimpan lewat `PATCH`. Tombol Tambah dan Hapus tidak muncul, dan request `DELETE` manual dibalas 403.
+5. Login sebagai Pemilik: tambah, edit, dan hapus data. Coba isi nama institusi dengan `<img src="x" onerror="alert(1)">`: server membalas 400 dan pesannya tampil di *toast*.
+
+### AI Disclosure
+* **Tools yang digunakan:** Claude (Anthropic) melalui claude.ai.
+* **Strategi Prompting:** Saya mengunggah PDF soal Tugas 6 dan memberikan tautan repositori, lalu meminta AI menerapkan pola DRF dari Tutorial 07 pada bagian Education. Hasilnya saya terima sebagai *patch* per commit, lalu saya pasang, jalankan test, dan uji di server lokal untuk setiap peran.
+* **Bagian yang dibantu AI:**
+  * Menambahkan relasi `stars` pada model `Education` beserta migrasinya.
+  * Membuat `EducationSerializer`, API view `education_list`, `education_detail`, `education_star`, dan URL di `main/api_urls.py`.
+  * Membuat ulang skrip `education.html` agar memakai API (pencarian, modal tambah/edit, *star*, hapus, *toast*).
+  * Menulis test di `main/tests_education_api.py`.
+  * Menyusun draf jawaban pertanyaan reflektif dan ringkasan implementasi di README.
+* **Keterbatasan AI yang saya temukan:**
+  * AI tidak menjalankan proyek di laptop saya. Test-nya dijalankan di lingkungan AI dengan Python 3.11, sedangkan saya memakai Python 3.9, jadi saya tetap harus menjalankan `python manage.py test main` dan `runserver` sendiri.
+  * AI tidak memiliki akses ke database lokal saya, sehingga migrasi `0010_education_stars` harus saya jalankan sendiri.
+  * Instruksi terminal pertama dari AI berisi komentar `#` yang ikut tertempel dan menyebabkan error di zsh, sehingga perintahnya perlu saya jalankan ulang satu per satu.
+* **Perbaikan manual yang saya lakukan:** *(Memperbaiki Model Web)*
