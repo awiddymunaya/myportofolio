@@ -2,9 +2,6 @@
 {% load static %}
 
 {% block meta %}
-<!-- JURUS DOMPURIFY (MISI 4) -->
-<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.7/dist/purify.min.js"></script>
-
 <style>
     /* =========================================
        TEMA ZIG-ZAG HORIZONTAL - ROYAL BLUE & GOLD
@@ -79,139 +76,504 @@
         .timeline-item:nth-child(odd) .timeline-card::after { right: auto; left: 0; }
     }
 
-    /* --- MODAL AJAX STYLING --- */
-    #eduModal {
-        display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px); align-items: center; justify-content: center;
+    .edu-desc { color: #555; font-size: 13px; line-height: 1.5; margin: 6px 0 0; white-space: pre-line; overflow-wrap: anywhere; }
+    .edu-institution { overflow-wrap: anywhere; }
+
+    /* --- TOOLBAR PENCARIAN --- */
+    .edu-toolbar { max-width: 520px; margin: 25px auto 8px; position: relative; }
+    .edu-toolbar .fa-magnifying-glass { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #D4AF37; }
+    .edu-toolbar input {
+        width: 100%; box-sizing: border-box; padding: 12px 42px; border-radius: 25px; border: 1px solid rgba(15, 43, 91, 0.15);
+        background: #fff; font-size: 14px; font-family: inherit; color: #0f2b5b; box-shadow: 0 4px 15px rgba(15, 43, 91, 0.06);
     }
+    .edu-toolbar input::-webkit-search-cancel-button { display: none; }
+    .edu-toolbar input:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.25); }
+    .edu-search-clear { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: #888; cursor: pointer; padding: 6px 8px; }
+    .edu-meta { text-align: center; color: #666; font-size: 13px; min-height: 20px; margin: 0; }
+
+    /* --- STAR --- */
+    .btn-star {
+        background: none; border: 1px solid transparent; border-radius: 20px; padding: 3px 10px 3px 0; margin-top: 8px;
+        cursor: pointer; font-size: 13px; color: #B5952F; font-weight: bold; font-family: inherit;
+        display: inline-flex; align-items: center; gap: 6px; text-decoration: none; transition: all 0.2s;
+    }
+    .btn-star.is-starred { background: rgba(212, 175, 55, 0.12); border-color: rgba(212, 175, 55, 0.5); padding-left: 10px; }
+    .btn-star:disabled, .btn-action:disabled { opacity: 0.6; cursor: wait; }
+    .timeline-item.is-removing { opacity: 0; transition: opacity 0.3s; }
+
+    /* --- KONDISI LOADING, KOSONG, ERROR (tidak ikut zig-zag) --- */
+    .edu-state { text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; background: #fff; position: relative; z-index: 2; }
+    .edu-state.error { border-color: #c62828; }
+    .edu-state p { margin: 0 0 12px; }
+    .edu-state .btn-action { padding: 8px 18px; font-size: 13px; }
+    .royal-timeline.is-empty::after { display: none; }
+
+    /* --- MODAL TAMBAH / EDIT --- */
+    #eduModal {
+        position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+        background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;
+    }
+    #eduModal[hidden] { display: none; }
     .modal-content {
         background-color: #ffffff; padding: 30px; border-radius: 12px; width: 100%; max-width: 500px;
-        box-shadow: 0 15px 35px rgba(15, 43, 91, 0.2); border-top: 6px solid #D4AF37; max-height: 90vh; overflow-y: auto; text-align: left;
+        box-shadow: 0 15px 35px rgba(15, 43, 91, 0.2); border-top: 6px solid #D4AF37; max-height: 90vh; overflow-y: auto; text-align: left; box-sizing: border-box;
     }
-    .modal-input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; margin-bottom: 15px; box-sizing: border-box; }
+    .modal-field { font-size: 14px; color: #333; margin-bottom: 15px; }
+    .modal-field label { display: block; font-weight: 600; }
+    .modal-field input, .modal-field textarea {
+        width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; margin-top: 5px; box-sizing: border-box; font-family: inherit; font-size: 14px;
+    }
+    .modal-field input:focus, .modal-field textarea:focus { outline: none; border-color: #D4AF37; box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2); }
+    .modal-field.has-error input, .modal-field.has-error textarea { border-color: #c62828; }
+    .field-error { color: #c62828; font-size: 12.5px; margin: 5px 0 0; }
+    .field-error:empty { display: none; }
+    .modal-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 10px; }
+    .modal-buttons .btn-action { padding: 8px 22px; font-size: 13px; }
+    .btn-save { background: #0f2b5b; color: #fff; }
+    .btn-cancel { background: #ddd; color: #333; }
+    body.modal-open { overflow: hidden; }
 </style>
 {% endblock meta %}
 
 {% block content %}
-<section class="edu-section">
+<section
+    class="edu-section"
+    id="education-app"
+    data-list-url="{% url 'api:education-list' %}"
+    data-detail-url="{% url 'api:education-detail' '00000000-0000-0000-0000-000000000000' %}"
+    data-star-url="{% url 'api:education-star' '00000000-0000-0000-0000-000000000000' %}"
+    data-login-url="{% url 'main:login' %}"
+    data-authenticated="{{ user.is_authenticated|yesno:'true,false' }}"
+    data-can-edit="{{ can_edit|yesno:'true,false' }}"
+    data-can-delete="{{ can_delete|yesno:'true,false' }}"
+>
+    <!-- Token CSRF untuk fetch() yang mengubah data (POST/PATCH/DELETE ke API DRF) -->
+    <div hidden>{% csrf_token %}</div>
+
     <div class="edu-header-container">
         <h1>Education</h1>
         <p class="edu-quote">« Τῆς παιδείας αἱ μὲν ρίζαι πικραί, ὁ δὲ καρπὸς γλυκύς. »</p>
         <p class="edu-quote-translation">— Aristoteles</p>
-        
-        {% if user.is_superuser %}
-            <button onclick="showEduModal()" class="btn-add-gold">+ Tambah Pendidikan (AJAX)</button>
+
+        {% if can_add %}
+            <button type="button" id="open-add-modal" class="btn-add-gold">+ Tambah Pendidikan</button>
         {% endif %}
+
+        <div class="edu-toolbar" role="search">
+            <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+            <input type="search" id="education-search" placeholder="Cari nama institusi atau jenjang..."
+                autocomplete="off" aria-label="Cari pendidikan">
+            <button type="button" class="edu-search-clear" id="clear-search" aria-label="Hapus pencarian" hidden>
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+        </div>
+        <p class="edu-meta" id="education-meta" aria-live="polite"></p>
     </div>
 
-    <!-- WADAH TIMELINE AJAX -->
-    <div id="education-timeline-container" class="royal-timeline"></div>
+    <!-- Diisi JavaScript dari API /api/v1/education/ -->
+    <div id="education-timeline-container" class="royal-timeline" aria-busy="true"></div>
 </section>
 
-<!-- MODAL TAMBAH PENDIDIKAN AJAX -->
-<div id="eduModal">
-    <div class="modal-content">
-        <h2 style="color: #0f2b5b; margin-top: 0; text-align: center;">Add New Education</h2>
-        <form id="addEducationForm" onsubmit="addEducation(event)">
-            {% csrf_token %}
-            <div style="font-size: 14px; color: #333;">
-                <label>Jenjang (Level):</label>
-                <input type="text" id="level" name="level" class="modal-input" placeholder="Contoh: S1 Ilmu Komputer" required>
-
-                <label>Nama Institusi:</label>
-                <input type="text" id="institution_name" name="institution_name" class="modal-input" placeholder="Contoh: Universitas Indonesia" required>
-
-                <label>Tahun Mulai:</label>
-                <input type="number" id="start_year" name="start_year" class="modal-input" required>
-
-                <label>Tahun Selesai:</label>
-                <input type="text" id="end_year" name="end_year" class="modal-input" placeholder="Present atau 2028" required>
-
-                <label>Deskripsi (Opsional):</label>
-                <textarea id="description" name="description" class="modal-input" rows="3"></textarea>
-
-                <label>Link / Path Logo:</label>
-                <input type="text" id="logo_url" name="logo_url" class="modal-input" placeholder="/static/img/...">
-            </div>
-
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 10px;">
-                <button type="button" onclick="hideEduModal()" class="btn-action btn-delete" style="border: none; background: #ddd; color: #333;">Batal</button>
-                <button type="submit" class="btn-action btn-edit" style="background: #0f2b5b; color: white;">Simpan</button>
+{% if can_edit %}
+<!-- Satu modal untuk tambah (POST, Pemilik) dan edit (PATCH, Pemilik & Editor) -->
+<div id="eduModal" hidden>
+    <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="edu-modal-title">
+        <h2 id="edu-modal-title" style="color: #0f2b5b; margin-top: 0; text-align: center;">Tambah Pendidikan</h2>
+        <!-- novalidate: validasi ditangani serializer di server, pesannya tampil di bawah input & toast -->
+        <form id="educationForm" novalidate>
+            {% for field in form %}
+                <div class="modal-field" data-field="{{ field.name }}">
+                    <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+                    {{ field }}
+                    <p class="field-error"></p>
+                </div>
+            {% endfor %}
+            <div class="modal-buttons">
+                <button type="button" class="btn-action btn-cancel" data-close-modal>Batal</button>
+                <button type="submit" class="btn-action btn-save" id="submit-education">Simpan</button>
             </div>
         </form>
     </div>
 </div>
+{% endif %}
+{% endblock content %}
 
+
+{% block scripts %}
 <script>
-    const isSuperuserEdu = {{ user.is_superuser|yesno:"true,false"|default:"false" }};
-    const isEditorEdu = {{ is_editor|yesno:"true,false"|default:"false" }};
+(function () {
+    "use strict";
 
-    function showEduModal() { document.getElementById('eduModal').style.display = 'flex'; }
-    function hideEduModal() { document.getElementById('eduModal').style.display = 'none'; document.getElementById('addEducationForm').reset(); }
+    const app = document.getElementById("education-app");
+    if (!app) return;
 
-    async function getEducations() { return fetch("{% url 'main:get_educations_json' %}").then((res) => res.json()); }
+    // ---------- Konfigurasi dari atribut data-* ----------
+    const PLACEHOLDER_ID = "00000000-0000-0000-0000-000000000000";
+    const config = {
+        listUrl: app.dataset.listUrl,       // GET daftar (+ ?q=), POST tambah
+        detailUrl: app.dataset.detailUrl,   // GET/PUT/PATCH/DELETE satu data
+        starUrl: app.dataset.starUrl,       // POST beri/batalkan star
+        loginUrl: app.dataset.loginUrl,
+        isAuthenticated: app.dataset.authenticated === "true",
+        canEdit: app.dataset.canEdit === "true",
+        canDelete: app.dataset.canDelete === "true",
+    };
+    const FIELDS = ["level", "institution_name", "start_year", "end_year", "description", "logo_url"];
+    const urlFor = (template, id) => template.replace(PLACEHOLDER_ID, encodeURIComponent(id));
 
+    const container = document.getElementById("education-timeline-container");
+    const meta = document.getElementById("education-meta");
+    const searchInput = document.getElementById("education-search");
+    const clearButton = document.getElementById("clear-search");
+
+    let educationsById = new Map();   // data terakhir dari API, dipakai untuk mengisi form edit
+    let activeController = null;      // membatalkan request pencarian yang sudah usang
+
+    // ---------- Kondisi loading, kosong, error ----------
+    function setEmptyLayout(isEmpty) {
+        container.classList.toggle("is-empty", isEmpty);
+    }
+
+    function renderLoading() {
+        container.setAttribute("aria-busy", "true");
+        meta.textContent = "Memuat data pendidikan...";
+    }
+
+    function renderEmpty(query) {
+        setEmptyLayout(true);
+        meta.textContent = "";
+        container.innerHTML = query
+            ? `<div class="edu-state"><p>Tidak ada pendidikan yang cocok dengan "<strong>${escapeHtml(query)}</strong>".</p>
+                   <button type="button" class="btn-action btn-edit" data-action="reset-search">Tampilkan Semua</button></div>`
+            : '<div class="edu-state"><p>Belum ada data pendidikan.</p></div>';
+    }
+
+    function renderError(message) {
+        setEmptyLayout(true);
+        meta.textContent = "";
+        container.innerHTML = `
+            <div class="edu-state error" role="alert">
+                <p><strong>Gagal memuat data.</strong> ${escapeHtml(message)}</p>
+                <button type="button" class="btn-action btn-edit" data-action="retry">Coba Lagi</button>
+            </div>`;
+    }
+
+    // ---------- Kartu timeline ----------
+    function starLabel(count) {
+        return `${count} Star${count === 1 ? "" : "s"}`;
+    }
+
+    function starHtml(edu) {
+        const count = Number(edu.star_count) || 0;
+        if (!config.isAuthenticated) {
+            // Pengunjung tanpa login hanya melihat jumlah star; klik diarahkan ke halaman login
+            return `
+                <a class="btn-star" href="${escapeHtml(config.loginUrl)}" title="Login untuk memberi star">
+                    <i class="fa-regular fa-star" aria-hidden="true"></i> <span data-star-label>${starLabel(count)}</span>
+                </a>`;
+        }
+        const starred = Boolean(edu.is_starred);
+        return `
+            <button type="button" class="btn-star${starred ? " is-starred" : ""}" data-action="star"
+                data-id="${escapeHtml(edu.id)}" aria-pressed="${starred}" title="${starred ? "Cabut star" : "Beri star"}">
+                <i class="${starred ? "fa-solid" : "fa-regular"} fa-star" aria-hidden="true"></i>
+                <span data-star-label>${starLabel(count)}</span>
+            </button>`;
+    }
+
+    function actionsHtml(edu) {
+        if (!config.canEdit && !config.canDelete) return "";
+        const id = escapeHtml(edu.id);
+        return `
+            <div class="edu-actions">
+                ${config.canEdit ? `<button type="button" class="btn-action btn-edit" data-action="edit" data-id="${id}">Edit</button>` : ""}
+                ${config.canDelete ? `<button type="button" class="btn-action btn-delete" data-action="delete" data-id="${id}">Hapus</button>` : ""}
+            </div>`;
+    }
+
+    function cardHtml(edu) {
+        // Semua teks dari server di-escape sebelum masuk ke innerHTML (pencegahan XSS),
+        // dan logo hanya diizinkan berupa URL http(s) atau jalur relatif
+        const logo = safeUrl(edu.logo_url);
+        const logoHtml = logo
+            ? `<img src="${escapeHtml(logo)}" alt="Logo ${escapeHtml(edu.institution_name)}" loading="lazy">`
+            : '<i class="fa-solid fa-graduation-cap edu-logo-fallback" aria-hidden="true"></i>';
+        const period = `${edu.start_year} - ${edu.end_year || "Present"}`;
+
+        return `
+            <div class="timeline-item" data-id="${escapeHtml(edu.id)}">
+                <div class="timeline-card">
+                    <div class="edu-logo-box">${logoHtml}</div>
+                    <div class="edu-content">
+                        <div class="year-badge">${escapeHtml(period)}</div>
+                        <h3 class="edu-institution">${escapeHtml(edu.institution_name)}</h3>
+                        <p class="edu-level">${escapeHtml(edu.level)}</p>
+                        ${edu.description ? `<p class="edu-desc">${escapeHtml(edu.description)}</p>` : ""}
+                        ${starHtml(edu)}
+                        ${actionsHtml(edu)}
+                    </div>
+                </div>
+            </div>`;
+    }
+
+    function renderList(educations, query) {
+        container.setAttribute("aria-busy", "false");
+        educationsById = new Map(educations.map((edu) => [String(edu.id), edu]));
+        if (!educations.length) {
+            renderEmpty(query);
+            return;
+        }
+        setEmptyLayout(false);
+        meta.textContent = query
+            ? `${educations.length} pendidikan cocok dengan "${query}"`
+            : `Menampilkan ${educations.length} jenjang pendidikan`;
+        container.innerHTML = educations.map(cardHtml).join("");
+    }
+
+    // ---------- Ambil data dari API ----------
     async function refreshEducations() {
-        const container = document.getElementById("education-timeline-container");
-        container.innerHTML = ""; 
-        const educations = await getEducations();
-        let htmlString = "";
+        if (activeController) activeController.abort();
+        const controller = new AbortController();
+        activeController = controller;
 
-        if (educations.length === 0) {
-            htmlString = `<div style="text-align: center; padding: 40px; border: 1px dashed #D4AF37; border-radius: 12px; color: #0f2b5b; width: 100%;">Belum ada data pendidikan.</div>`;
-        } else {
-            educations.forEach((item, index) => {
-                const edu = item.fields;
-                const pk = item.pk;
+        const query = searchInput.value.trim();
+        const params = new URLSearchParams();
+        if (query) params.set("q", query);   // pencarian Tugas 5 sekarang jadi query param API
 
-                // PROTEKSI DOMPURIFY FRONTEND (MISI 4)
-                const safeLevel = DOMPurify.sanitize(edu.level);
-                const safeInst = DOMPurify.sanitize(edu.institution_name);
-                
-                const logoHtml = edu.logo_url 
-                    ? `<img src="${edu.logo_url}" alt="Logo" onerror="this.style.display='none'">` 
-                    : `<i class="fa-solid fa-graduation-cap edu-logo-fallback"></i>`;
+        renderLoading();
+        try {
+            const response = await fetch(`${config.listUrl}?${params.toString()}`, {
+                headers: { Accept: "application/json" },   // minta JSON, bukan Browsable API
+                signal: controller.signal,
+            });
+            if (!response.ok) throw new Error(`Server membalas dengan status ${response.status}.`);
+            renderList(await response.json(), query);
+        } catch (error) {
+            if (error.name === "AbortError") return;
+            renderError(error.message || "Periksa koneksi internetmu lalu coba lagi.");
+        } finally {
+            if (activeController === controller) activeController = null;
+        }
+    }
 
-                let buttonsHtml = '';
-                if (isSuperuserEdu || isEditorEdu) {
-                    buttonsHtml = `<div class="edu-actions"><a href="/education/${pk}/update/" class="btn-action btn-edit">Edit</a>`;
-                    if (isSuperuserEdu) {
-                        buttonsHtml += `
-                            <form method="POST" action="/education/${pk}/delete/" style="margin: 0;">
-                                {% csrf_token %}
-                                <button type="submit" class="btn-action btn-delete" onclick="return confirm('Hapus data ini?')">Hapus</button>
-                            </form>`;
-                    }
-                    buttonsHtml += `</div>`;
-                }
+    // ---------- Pencarian dengan debouncing ----------
+    const debouncedRefresh = debounce(refreshEducations, 400);
+    searchInput.addEventListener("input", () => {
+        clearButton.hidden = searchInput.value.length === 0;
+        debouncedRefresh();
+    });
+    searchInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") event.preventDefault();
+    });
+    function resetSearch() {
+        searchInput.value = "";
+        clearButton.hidden = true;
+        refreshEducations();
+    }
+    clearButton.addEventListener("click", () => { resetSearch(); searchInput.focus(); });
 
-                htmlString += `
-                    <div class="timeline-item">
-                        <div class="timeline-card">
-                            <div class="edu-logo-box">${logoHtml}</div>
-                            <div class="edu-content">
-                                <div class="year-badge">${edu.start_year} - ${edu.end_year ? edu.end_year : 'Present'}</div>
-                                <h3 class="edu-institution">${safeInst}</h3>
-                                <p class="edu-level">${safeLevel}</p>
-                                ${buttonsHtml}
-                            </div>
-                        </div>
-                    </div>`;
+    // ---------- Request tulis ke API DRF ----------
+    // Error DRF berbentuk {"detail": "..."} (403/404) atau {"field": ["..."]} (400)
+    function apiErrorMessage(data, status) {
+        const messages = Object.values(data || {}).flat().filter((value) => typeof value === "string");
+        return messages.join(" ") || `Permintaan gagal (status ${status}).`;
+    }
+
+    async function apiRequest(url, method, payload) {
+        const response = await fetch(url, {
+            method,
+            headers: {
+                Accept: "application/json",
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCsrfToken(),   // wajib untuk SessionAuthentication
+            },
+            body: payload === undefined ? undefined : JSON.stringify(payload),
+        });
+        if (response.status === 204) return null;   // DELETE berhasil, body kosong
+        const data = await readJsonSafely(response);
+        if (!response.ok) {
+            const error = new Error(apiErrorMessage(data, response.status));
+            error.status = response.status;
+            error.data = data;
+            throw error;
+        }
+        return data;
+    }
+
+    async function toggleStar(button) {
+        button.disabled = true;
+        try {
+            const data = await apiRequest(urlFor(config.starUrl, button.dataset.id), "POST");
+            educationsById.set(String(data.id), data);
+            button.classList.toggle("is-starred", data.is_starred);
+            button.setAttribute("aria-pressed", String(data.is_starred));
+            button.title = data.is_starred ? "Cabut star" : "Beri star";
+            button.querySelector("i").className = `${data.is_starred ? "fa-solid" : "fa-regular"} fa-star`;
+            button.querySelector("[data-star-label]").textContent = starLabel(Number(data.star_count) || 0);
+        } catch (error) {
+            showToast(error.message, "error");
+        } finally {
+            button.disabled = false;
+        }
+    }
+
+    async function deleteEducation(button) {
+        const edu = educationsById.get(button.dataset.id);
+        const name = edu ? edu.institution_name : "data ini";
+        if (!window.confirm(`Yakin ingin menghapus "${name}"?`)) return;
+
+        button.disabled = true;
+        try {
+            await apiRequest(urlFor(config.detailUrl, button.dataset.id), "DELETE");   // 204
+            showToast(`"${name}" berhasil dihapus.`, "success");
+            const item = button.closest(".timeline-item");
+            if (item) item.classList.add("is-removing");
+            setTimeout(refreshEducations, 300);
+        } catch (error) {
+            showToast(error.message, "error");
+            button.disabled = false;
+        }
+    }
+
+    // ---------- Modal tambah & edit ----------
+    const modal = document.getElementById("eduModal");
+    const form = document.getElementById("educationForm");
+    const modalTitle = document.getElementById("edu-modal-title");
+    const submitButton = document.getElementById("submit-education");
+    const addButton = document.getElementById("open-add-modal");
+    let editingId = null;   // null = mode tambah, berisi id = mode edit
+    let lastTrigger = null;
+
+    function clearFieldErrors() {
+        form.querySelectorAll(".modal-field").forEach((field) => {
+            field.classList.remove("has-error");
+            field.querySelector(".field-error").textContent = "";
+        });
+    }
+
+    function showFieldErrors(errors) {
+        let firstInvalid = null;
+        Object.entries(errors || {}).forEach(([name, messages]) => {
+            const field = form.querySelector(`.modal-field[data-field="${CSS.escape(name)}"]`);
+            if (!field || !Array.isArray(messages)) return;
+            field.classList.add("has-error");
+            field.querySelector(".field-error").textContent = messages.join(" ");   // textContent: aman
+            if (!firstInvalid) firstInvalid = field.querySelector("input, textarea");
+        });
+        if (firstInvalid) firstInvalid.focus();
+    }
+
+    function openModal(edu, trigger) {
+        editingId = edu ? String(edu.id) : null;
+        lastTrigger = trigger || null;
+        form.reset();
+        clearFieldErrors();
+        modalTitle.textContent = edu ? "Edit Pendidikan" : "Tambah Pendidikan";
+        if (edu) {
+            FIELDS.forEach((name) => {
+                if (form.elements[name]) form.elements[name].value = edu[name] ?? "";
             });
         }
-        container.innerHTML = htmlString;
+        modal.hidden = false;
+        document.body.classList.add("modal-open");
+        const firstInput = form.querySelector("input, textarea");
+        if (firstInput) firstInput.focus();
     }
 
-    function addEducation(event) {
-        event.preventDefault();
-        fetch("{% url 'main:add_education_ajax' %}", {
-            method: "POST",
-            body: new FormData(document.querySelector('#addEducationForm'))
-        }).then(response => {
-            if (response.ok) { hideEduModal(); refreshEducations(); } 
-            else { alert("Gagal menambahkan data."); }
-        })
+    function closeModal() {
+        modal.hidden = true;
+        document.body.classList.remove("modal-open");
+        editingId = null;
+        if (lastTrigger && document.body.contains(lastTrigger)) lastTrigger.focus();
     }
+
+    function readPayload() {
+        const payload = {};
+        FIELDS.forEach((name) => { payload[name] = (form.elements[name].value || "").trim(); });
+        // start_year bertipe angka; string kosong dibiarkan agar serializer membalas 400 yang jelas
+        payload.start_year = payload.start_year === "" ? null : Number(payload.start_year);
+        return payload;
+    }
+
+    if (modal && form) {
+        if (addButton) addButton.addEventListener("click", () => openModal(null, addButton));
+        form.querySelectorAll("[data-close-modal]").forEach((el) => el.addEventListener("click", closeModal));
+        modal.addEventListener("click", (event) => { if (event.target === modal) closeModal(); });
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !modal.hidden) closeModal();
+        });
+
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            clearFieldErrors();
+            submitButton.disabled = true;
+            submitButton.textContent = "Menyimpan...";
+            const isEdit = editingId !== null;
+            try {
+                const saved = isEdit
+                    ? await apiRequest(urlFor(config.detailUrl, editingId), "PATCH", readPayload())   // 200
+                    : await apiRequest(config.listUrl, "POST", readPayload());                        // 201
+                showToast(
+                    isEdit
+                        ? `"${saved.institution_name}" berhasil diperbarui.`
+                        : `"${saved.institution_name}" berhasil ditambahkan.`,
+                    "success",
+                );
+                closeModal();
+                if (!isEdit) { searchInput.value = ""; clearButton.hidden = true; }
+                await refreshEducations();
+            } catch (error) {
+                if (error.status === 400) {
+                    showFieldErrors(error.data);
+                    showToast(error.message || "Data tidak valid. Periksa kembali isian form.", "error");
+                } else if (error.status === 403) {
+                    showToast(error.message || "Akses ditolak. Muat ulang halaman lalu coba lagi.", "error");
+                } else {
+                    showToast(`Gagal menyimpan data: ${error.message}`, "error");
+                }
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = "Simpan";
+            }
+        });
+    }
+
+    // ---------- Event delegation untuk tombol di kartu ----------
+    container.addEventListener("click", (event) => {
+        const target = event.target.closest("[data-action]");
+        if (!target) return;
+        switch (target.dataset.action) {
+            case "star":
+                toggleStar(target);
+                break;
+            case "edit": {
+                const edu = educationsById.get(target.dataset.id);
+                if (edu && modal) openModal(edu, target);
+                break;
+            }
+            case "delete":
+                deleteEducation(target);
+                break;
+            case "retry":
+                refreshEducations();
+                break;
+            case "reset-search":
+                resetSearch();
+                break;
+        }
+    });
+
+    // Logo dengan link rusak diganti ikon (event "error" tidak bubble, jadi pakai fase capture)
+    container.addEventListener("error", (event) => {
+        const img = event.target;
+        if (img.tagName !== "IMG") return;
+        img.replaceWith(Object.assign(document.createElement("i"), {
+            className: "fa-solid fa-graduation-cap edu-logo-fallback",
+        }));
+    }, true);
+
     refreshEducations();
+})();
 </script>
-{% endblock content %}
+{% endblock scripts %}
