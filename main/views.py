@@ -11,6 +11,7 @@ from django.contrib.auth import authenticate, login, logout
 import datetime
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 
 
@@ -306,19 +307,29 @@ def get_educations_json(request):
     educations_json = serializers.serialize("json", educations)
     return HttpResponse(educations_json, content_type="application/json")
 
+@ensure_csrf_cookie
 def show_education(request):
-    educations = Education.objects.all().order_by('-start_year')
+    """
+    Tugas 6: hanya merender kerangka halaman. Data Education diambil, dicari,
+    ditambah, diubah, diberi star, dan dihapus lewat API DRF /api/v1/education/.
+    @ensure_csrf_cookie memastikan cookie csrftoken selalu ada untuk fetch().
+    """
+    user = request.user
+    allowed_to_edit = can_edit_data(user)
 
     context = {
-        'educations': educations,
-        'name': "Awiddy Munaya Rajanadoli",
-        "is_editor": is_editor(request.user) if request.user.is_authenticated else False,
+        "name": "Awiddy Munaya Rajanadoli",
+        "can_add": can_add_data(user),
+        "can_edit": allowed_to_edit,
+        "can_delete": can_delete_data(user),
+        # Form modal dipakai untuk tambah (Pemilik) dan edit (Pemilik & Editor)
+        "form": EducationForm() if allowed_to_edit else None,
     }
     return render(request, 'education.html', context)
 
 @login_required(login_url='/login')
 def create_education(request):
-    if not request.user.is_superuser:
+    if not can_add_data(request.user):
         return HttpResponseForbidden("Akses Ditolak: Hanya Pemilik yang dapat menambah data.")
 
     form = EducationForm(request.POST or None)
@@ -332,7 +343,7 @@ def create_education(request):
 
 @login_required(login_url='/login')
 def update_education(request, education_id):
-    if not (request.user.is_superuser or is_editor(request.user)):
+    if not can_edit_data(request.user):
         return HttpResponseForbidden("Akses Ditolak: Minimal peran Editor diperlukan untuk mengubah data.")
 
     education = get_object_or_404(Education, pk=education_id)
@@ -352,7 +363,7 @@ def update_education(request, education_id):
 
 @login_required(login_url='/login')
 def delete_education(request, education_id):
-    if not request.user.is_superuser:
+    if not can_delete_data(request.user):
         return HttpResponseForbidden("Akses Ditolak: Hanya Pemilik yang dapat menghapus data.")
 
     education = get_object_or_404(Education, pk=education_id)
