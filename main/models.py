@@ -50,5 +50,12 @@ class Education(models.Model):
     # Diubah juga menjadi CharField agar seragam dan bebas error saat pakai gambar folder
     logo_url = models.CharField(max_length=500, blank=True, null=True)
 
+    # Tugas 6: relasi star ke User, sama seperti Experience
+    stars = models.ManyToManyField(User, related_name='starred_educations', blank=True)
+
     def __str__(self):
         return f"{self.level} - {self.institution_name}"
+
+    @property
+    def total_stars(self):
+        return self.stars.count()
